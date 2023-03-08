@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
+import { test } from "./templates"
+
 export function resizeRendererToDisplaySize(renderer) {
   const canvas = renderer.domElement;
   const width = canvas.clientWidth;
@@ -63,38 +65,69 @@ export function checkRendererAspect(renderer, camera) {
   }
 }
 
-export function isCellAlive(matrix, { x, z }) {
-  return !matrix[Math.round(x)][Math.round(z)]
+export function cloneMesh(mesh, { x, z }) {
+	const newMesh = mesh.clone()
+	newMesh.position.set(x, 0, z)
+	return newMesh
 }
 
+export const coordinatesToKey = ({ x, z }) => `x${x};z${z}`
+
+const randomArray = (length) => Array.from({ length }, () => Math.round(Math.random()))
+
 export function initializeFieldControls(length) {
-  const matrix = Array.from({ length }, () => Array(length).fill(0));
-  const index = (d) => length / 2 + Math.floor(d)
+  // const matrix = test
+  const matrix = Array.from({ length }, () => randomArray(length));
+  
+  const objects = {}
+  const index = (d) => length / 2 + Math.round(d) - 1
   const set = (x, z, v) => matrix[index(x)][index(z)] = v
   const get = (x, z) => matrix[index(x)] && matrix[index(x)][index(z)] || 0
+  
+  const revive = ({ x, z }) => set(x, z, 1)
+  const kill = ({ x, z }) => set(x, z, 0)
+  const isAlive = ({ x, z }) => !!get(x, z)
+
+  const shouldBeAlive = ({ x, z }) => {
+    const isCellAlive = isAlive({ x, z })
+    const count = (
+      get(x - 1, z - 1) +
+      get(x - 1, z) + 
+      get(x - 1, z + 1) +
+      get(x, z - 1) + 
+      get(x, z + 1) +
+      get(x + 1, z - 1) +
+      get(x + 1, z) + 
+      get(x + 1, z + 1)
+    )
+    return isCellAlive 
+      ? count > 1 && count < 4 
+      : count === 3
+  }
+  let changes = []
+
   return {
     matrix,
-    revive({ x, z }) {
-      set(x, z, 1)
+    objects,
+
+    revive,
+    kill,
+    isAlive,
+    applyChanges() {
+      changes.forEach(({ value, coordinates: { x, z } }) => set(x, z, value))
+      changes = []
     },
-    kill({ x, z }) {
-      set(x, z, 0)
-    },
-    isAlive({ x, z }) {
-      return !!get(x, z)
-    },
-    shouldRevive({ x, z }) {
-      let count = (
-        get({ x: x - 1, z: z - 1 }) +
-        get({ x: x - 1, z }) + 
-        get({ x: x - 1, z: z + 1 }) +
-        get({ x: x, z: z - 1 }) + 
-        get({ x: x, z: z + 1 }) +
-        get({ x: x - 1, z: z - 1 }) +
-        get({ x, z: z - 1}) + 
-        get({ x: x + 1, z: z - 1 })
-      )
-      console.log(count)
+    iterate({ x, z }) {
+      const coordinates = { 
+        x: x - length / 2,
+        z: z - length / 2
+      }
+      const isCellAlive = isAlive(coordinates)
+      if(shouldBeAlive(coordinates)) {
+        return !isCellAlive && changes.push({ coordinates, value: 1 })
+      } else {
+        return isCellAlive && changes.push({ coordinates, value: 0 })
+      }
     }
   }
 }
