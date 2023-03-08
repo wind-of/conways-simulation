@@ -563,7 +563,8 @@ var _grid = require("./grid");
 const { renderer , scene , camera  } = (0, _helpers.initialization)();
 const matrixSize = 20;
 const field = (0, _helpers.initializeFieldControls)(matrixSize);
-let isIterating = true;
+let isIterating = false;
+let iteration = 0;
 const planeMesh = (0, _helpers.horizontalPlaneMesh)({
     height: matrixSize,
     width: matrixSize,
@@ -595,29 +596,36 @@ window.addEventListener("mousemove", ({ clientX , clientY  })=>{
     if (!isCurrentCellAlive) highlightMesh.position.set(highlightPos.x, 0, highlightPos.z);
 });
 const aliveCellMesh = (0, _helpers.aliveCellFactory)();
-window.addEventListener("mousedown", function() {
+{
+    const { matrix  } = field;
+    for(let x = 0; x < matrix.length; x++)for(let z = 0; z < matrix[x].length; z++){
+        const v = matrix[x][z];
+        const normalize = (d)=>d + .5;
+        let x_ = normalize(x - matrixSize / 2);
+        let z_ = normalize(z - matrixSize / 2);
+        if (v === 1) {
+            const aliveCell = (0, _helpers.cloneMesh)(aliveCellMesh, {
+                x: x_,
+                z: z_
+            });
+            scene.add(aliveCell);
+        }
+    }
+}window.addEventListener("mousedown", function() {
     if (field.isAlive(highlightMesh.position) || !intersectedCell || isIterating) return;
-    const aliveCell = aliveCellMesh.clone();
-    aliveCell.position.copy(highlightMesh.position);
     field.revive(highlightMesh.position);
+    const aliveCell = (0, _helpers.cloneMesh)(aliveCellMesh, highlightMesh.position);
     scene.add(aliveCell);
 });
-let iteration = 1;
 function animate(time) {
-    highlightMesh.material.opacity = (0, _helpers.highlightOpacityFunction)(time);
-    if (isIterating && iteration === time / 1000 | 0) {
-        console.log("iteration:", iteration);
-        console.log("time:", time / 1000 | 0);
-        iteration = time / 1000 | 0;
+    if (isIterating && iteration < time / 1000 | 0) {
         const matrix = field.matrix;
-        for(let x = 0; x < matrix.length; x++)for(let z = 0; z < matrix[x].length; z++)if (field.shouldRevive({
-            x,
-            z
-        })) field.revive({
+        for(let x = 0; x < matrix.length; x++)for(let z = 0; z < matrix[x].length; z++)field.iterate({
             x,
             z
         });
-    }
+        field.applyChanges();
+    } else highlightMesh.material.opacity = (0, _helpers.highlightOpacityFunction)(time);
     (0, _helpers.checkRendererAspect)(renderer, camera);
     renderer.render(scene, camera);
 }
@@ -29974,11 +29982,13 @@ parcelHelpers.export(exports, "initialization", ()=>initialization);
 parcelHelpers.export(exports, "aliveCellFactory", ()=>aliveCellFactory);
 parcelHelpers.export(exports, "horizontalPlaneMesh", ()=>horizontalPlaneMesh);
 parcelHelpers.export(exports, "checkRendererAspect", ()=>checkRendererAspect);
-parcelHelpers.export(exports, "isCellAlive", ()=>isCellAlive);
+parcelHelpers.export(exports, "cloneMesh", ()=>cloneMesh);
+parcelHelpers.export(exports, "coordinatesToKey", ()=>coordinatesToKey);
 parcelHelpers.export(exports, "initializeFieldControls", ()=>initializeFieldControls);
 parcelHelpers.export(exports, "highlightOpacityFunction", ()=>highlightOpacityFunction);
 var _three = require("three");
 var _orbitControlsJs = require("three/examples/jsm/controls/OrbitControls.js");
+var _templates = require("./templates");
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
     const width = canvas.clientWidth;
@@ -30025,54 +30035,59 @@ function checkRendererAspect(renderer, camera) {
         camera.updateProjectionMatrix();
     }
 }
-function isCellAlive(matrix, { x , z  }) {
-    return !matrix[Math.round(x)][Math.round(z)];
+function cloneMesh(mesh, { x , z  }) {
+    const newMesh = mesh.clone();
+    newMesh.position.set(x, 0, z);
+    return newMesh;
 }
+const coordinatesToKey = ({ x , z  })=>`x${x};z${z}`;
+const randomArray = (length)=>Array.from({
+        length
+    }, ()=>Math.round(Math.random()));
 function initializeFieldControls(length) {
     const matrix = Array.from({
         length
-    }, ()=>Array(length).fill(0));
-    const index = (d)=>length / 2 + Math.floor(d);
+    }, ()=>randomArray(length));
+    const objects = {};
+    const index = (d)=>length / 2 + Math.round(d) - 1;
     const set = (x, z, v)=>matrix[index(x)][index(z)] = v;
     const get = (x, z)=>matrix[index(x)] && matrix[index(x)][index(z)] || 0;
+    const revive = ({ x , z  })=>set(x, z, 1);
+    const kill = ({ x , z  })=>set(x, z, 0);
+    const isAlive = ({ x , z  })=>!!get(x, z);
+    const shouldBeAlive = ({ x , z  })=>{
+        const isCellAlive = isAlive({
+            x,
+            z
+        });
+        const count = get(x - 1, z - 1) + get(x - 1, z) + get(x - 1, z + 1) + get(x, z - 1) + get(x, z + 1) + get(x + 1, z - 1) + get(x + 1, z) + get(x + 1, z + 1);
+        return isCellAlive ? count > 1 && count < 4 : count === 3;
+    };
+    let changes = [];
     return {
         matrix,
-        revive ({ x , z  }) {
-            set(x, z, 1);
+        objects,
+        revive,
+        kill,
+        isAlive,
+        applyChanges () {
+            changes.forEach(({ value , coordinates: { x , z  }  })=>set(x, z, value));
+            changes = [];
         },
-        kill ({ x , z  }) {
-            set(x, z, 0);
-        },
-        isAlive ({ x , z  }) {
-            return !!get(x, z);
-        },
-        shouldRevive ({ x , z  }) {
-            let count = get({
-                x: x - 1,
-                z: z - 1
-            }) + get({
-                x: x - 1,
-                z
-            }) + get({
-                x: x - 1,
-                z: z + 1
-            }) + get({
-                x: x,
-                z: z - 1
-            }) + get({
-                x: x,
-                z: z + 1
-            }) + get({
-                x: x - 1,
-                z: z - 1
-            }) + get({
-                x,
-                z: z - 1
-            }) + get({
-                x: x + 1,
-                z: z - 1
+        iterate ({ x , z  }) {
+            const coordinates = {
+                x: x - length / 2,
+                z: z - length / 2
+            };
+            const isCellAlive = isAlive(coordinates);
+            if (shouldBeAlive(coordinates)) return !isCellAlive && changes.push({
+                coordinates,
+                value: 1
             });
-            console.log(count);
+            else return isCellAlive && changes.push({
+                coordinates,
+                value: 0
+            });
         }
     };
 }
@@ -30080,7 +30095,7 @@ function highlightOpacityFunction(time) {
     return Math.max(.2, (Math.cos(time / 180) + 1) / 2);
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"8Zvfd","three":"ktPTu","three/examples/jsm/controls/OrbitControls.js":"7mqRv"}],"7mqRv":[function(require,module,exports) {
+},{"three":"ktPTu","three/examples/jsm/controls/OrbitControls.js":"7mqRv","@parcel/transformer-js/src/esmodule-helpers.js":"8Zvfd","./templates":"18mfC"}],"7mqRv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "OrbitControls", ()=>OrbitControls);
@@ -30785,7 +30800,454 @@ class MapControls extends OrbitControls {
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"8Zvfd"}],"5bMWt":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"8Zvfd"}],"18mfC":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "test", ()=>test);
+const test = [
+    [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ]
+];
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"8Zvfd"}],"5bMWt":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createGridMesh", ()=>createGridMesh);
