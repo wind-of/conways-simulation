@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-import { test } from "./templates"
-
 export function resizeRendererToDisplaySize(renderer) {
   const canvas = renderer.domElement;
   const width = canvas.clientWidth;
@@ -112,14 +110,25 @@ export function initializeFieldControls(length) {
     revive,
     kill,
     isAlive,
+    
+    saveObject(mesh) {
+      const key = coordinatesToKey(mesh.position)
+      objects[key] = mesh
+    },
+    getObject(position) {
+      return objects[coordinatesToKey(position)]
+    },
+    removeObject(position) {
+      objects[coordinatesToKey(position)] = null
+    },
     applyChanges() {
       changes.forEach(({ value, coordinates: { x, z } }) => set(x, z, value))
       changes = []
     },
     iterate({ x, z }) {
       const coordinates = { 
-        x: x - length / 2,
-        z: z - length / 2
+        x: x - length / 2 + .5,
+        z: z - length / 2 + .5
       }
       const isCellAlive = isAlive(coordinates)
       if(shouldBeAlive(coordinates)) {
@@ -129,6 +138,33 @@ export function initializeFieldControls(length) {
       }
     }
   }
+}
+
+export function displayField(scene, field, aliveCellMesh) {
+	const { matrix } = field
+  const matrixSize = matrix.length
+	for(let x = 0; x < matrixSize; x++)
+		for(let z = 0; z < matrixSize; z++) {
+			const v = matrix[x][z]
+			const normalize = (d) => d + .5
+			let x_ = normalize(x - matrixSize / 2)
+			let z_ = normalize(z - matrixSize / 2)
+			const position = { x: x_, z: z_ }
+      const mesh = field.getObject(position)
+			if(v === 1) {
+        if(mesh) {
+          continue
+        }
+				const aliveCell = cloneMesh(aliveCellMesh, position)
+				field.saveObject(aliveCell)
+				scene.add(aliveCell) 
+			} else if(mesh) {
+        scene.remove(mesh)
+        mesh.geometry.dispose()
+        mesh.material.dispose()
+        field.removeObject(position)
+			}
+		}
 }
 
 export function highlightOpacityFunction(time) {
