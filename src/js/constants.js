@@ -9,3 +9,5 @@ export const NO_INTERSECTED_CELL = null
 export const SECOND_MS = 1000
 
 export const DEFAULT_Y_POSITION = 0
+
+export const SPACE_KEY = " "

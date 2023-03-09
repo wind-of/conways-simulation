@@ -7,7 +7,7 @@ import { highlightOpacityAnimation } from "./three/animation"
 
 import { initializeFieldControls } from "./helpers"
 import { createGridMesh } from "./three/grid";
-import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_MATRIX_SIZE, NO_INTERSECTED_CELL, SECOND_MS, DEFAULT_Y_POSITION } from "./constants"
+import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_MATRIX_SIZE, NO_INTERSECTED_CELL, SECOND_MS, DEFAULT_Y_POSITION, SPACE_KEY } from "./constants"
 
 const { renderer, scene, camera } = projectInitialization()
 const field = initializeFieldControls(DEFAULT_MATRIX_SIZE)
@@ -33,6 +33,10 @@ const mousePosition = new THREE.Vector2()
 const raycaster = new THREE.Raycaster()
 let intersectedCell = NO_INTERSECTED_CELL
 
+window.addEventListener("keydown", ({ key }) => {
+	if(key === SPACE_KEY) isIterating = !isIterating
+})
+
 window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	mousePosition.x = (clientX / window.innerWidth) * 2 - 1
 	mousePosition.y = -(clientY / window.innerHeight) * 2 + 1
@@ -40,7 +44,7 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	intersectedCell = raycaster.intersectObject(planeMesh)[0]
 	if(!intersectedCell || isIterating) {
 		highlightMesh.material.visible = false
-		return 
+		return
 	}
 
 	const highlightPos = new THREE.Vector3().copy(intersectedCell.point).floor().addScalar(0.5);
