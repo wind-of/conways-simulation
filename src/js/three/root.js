@@ -13,7 +13,7 @@ export function projectInitialization() {
     1000
   );
   const orbit = new OrbitControls(camera, renderer.domElement);
-  camera.position.set(10, 15, -22);
+  camera.position.set(0, 25, -50);
   orbit.update();
 
   return { 
