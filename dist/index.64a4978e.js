@@ -29975,15 +29975,11 @@ parcelHelpers.export(exports, "aliveCellFactory", ()=>aliveCellFactory);
 parcelHelpers.export(exports, "horizontalPlaneMesh", ()=>horizontalPlaneMesh);
 parcelHelpers.export(exports, "checkRendererAspect", ()=>checkRendererAspect);
 parcelHelpers.export(exports, "cloneMesh", ()=>cloneMesh);
-parcelHelpers.export(exports, "positionToKey", ()=>positionToKey);
-parcelHelpers.export(exports, "normilizeIndex", ()=>normilizeIndex);
-parcelHelpers.export(exports, "reverseNormilizeIndex", ()=>reverseNormilizeIndex);
-parcelHelpers.export(exports, "normilizeCoordinates", ()=>normilizeCoordinates);
-parcelHelpers.export(exports, "reverseNormilizeCoordinates", ()=>reverseNormilizeCoordinates);
 parcelHelpers.export(exports, "initializeFieldControls", ()=>initializeFieldControls);
 parcelHelpers.export(exports, "highlightOpacityFunction", ()=>highlightOpacityFunction);
 var _three = require("three");
 var _orbitControlsJs = require("three/examples/jsm/controls/OrbitControls.js");
+var _coordinates = require("./three/coordinates");
 const ALIVE_CELL_VALUE = 1;
 const DEAD_CELL_VALUE = 0;
 function resizeRendererToDisplaySize(renderer) {
@@ -30042,17 +30038,6 @@ function cloneMesh(mesh, { x , z  }) {
     newMesh.position.set(x, 0, z);
     return newMesh;
 }
-const positionToKey = ({ x , z  })=>`x${x};z${z}`;
-const normilizeIndex = (d, max)=>max / 2 + Math.round(d) - 1;
-const reverseNormilizeIndex = (d, max)=>d - max / 2 + .5;
-const normilizeCoordinates = ({ x , z  }, max)=>({
-        x: normilizeIndex(x, max),
-        z: normilizeIndex(z, max)
-    });
-const reverseNormilizeCoordinates = ({ x , z  }, max)=>({
-        x: reverseNormilizeIndex(x, max),
-        z: reverseNormilizeIndex(z, max)
-    });
 const randomArray = (length)=>Array.from({
         length
     }, ()=>Math.round(Math.random()));
@@ -30061,7 +30046,7 @@ function initializeFieldControls(matrixSize) {
         length: matrixSize
     }, ()=>randomArray(matrixSize));
     const objects = {};
-    const index = (d)=>normilizeIndex(d, matrixSize);
+    const index = (d)=>(0, _coordinates.normilizeIndex)(d, matrixSize);
     const set = (x, z, v)=>matrix[index(x)][index(z)] = v;
     const get = (x, z)=>matrix[index(x)] && matrix[index(x)][index(z)] || 0;
     const revive = ({ x , z  })=>set(x, z, ALIVE_CELL_VALUE);
@@ -30083,21 +30068,21 @@ function initializeFieldControls(matrixSize) {
         kill,
         isAlive,
         saveObject (mesh) {
-            const key = positionToKey(mesh.position);
+            const key = (0, _coordinates.positionToKey)(mesh.position);
             objects[key] = mesh;
         },
         getObject (position) {
-            return objects[positionToKey(position)];
+            return objects[(0, _coordinates.positionToKey)(position)];
         },
         removeObject (position) {
-            objects[positionToKey(position)] = null;
+            objects[(0, _coordinates.positionToKey)(position)] = null;
         },
         applyChanges () {
             changes.forEach(({ value , position: { x , z  }  })=>set(x, z, value));
             changes = [];
         },
         iterate (coordinates) {
-            const position = reverseNormilizeCoordinates(coordinates, matrixSize);
+            const position = (0, _coordinates.reverseNormilizeCoordinates)(coordinates, matrixSize);
             const isCellAlive = isAlive(position);
             if (shouldBeAlive(position)) return !isCellAlive && changes.push({
                 position,
@@ -30111,7 +30096,7 @@ function initializeFieldControls(matrixSize) {
         display (scene, aliveCellMesh) {
             for(let x = 0; x < matrixSize; x++)for(let z = 0; z < matrixSize; z++){
                 const v = matrix[x][z];
-                const position = reverseNormilizeCoordinates({
+                const position = (0, _coordinates.reverseNormilizeCoordinates)({
                     x,
                     z
                 }, matrixSize);
@@ -30133,7 +30118,7 @@ function highlightOpacityFunction(time) {
     return Math.max(.2, (Math.cos(time / 180) + 1) / 2);
 }
 
-},{"three":"ktPTu","three/examples/jsm/controls/OrbitControls.js":"7mqRv","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7mqRv":[function(require,module,exports) {
+},{"three":"ktPTu","three/examples/jsm/controls/OrbitControls.js":"7mqRv","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./three/coordinates":"1ydRR"}],"7mqRv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "OrbitControls", ()=>OrbitControls);
@@ -30838,7 +30823,27 @@ class MapControls extends OrbitControls {
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5bMWt":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1ydRR":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "positionToKey", ()=>positionToKey);
+parcelHelpers.export(exports, "normilizeIndex", ()=>normilizeIndex);
+parcelHelpers.export(exports, "reverseNormilizeIndex", ()=>reverseNormilizeIndex);
+parcelHelpers.export(exports, "normilizeCoordinates", ()=>normilizeCoordinates);
+parcelHelpers.export(exports, "reverseNormilizeCoordinates", ()=>reverseNormilizeCoordinates);
+const positionToKey = ({ x , z  })=>`x${x};z${z}`;
+const normilizeIndex = (d, max)=>max / 2 + Math.round(d) - 1;
+const reverseNormilizeIndex = (d, max)=>d - max / 2 + .5;
+const normilizeCoordinates = ({ x , z  }, max)=>({
+        x: normilizeIndex(x, max),
+        z: normilizeIndex(z, max)
+    });
+const reverseNormilizeCoordinates = ({ x , z  }, max)=>({
+        x: reverseNormilizeIndex(x, max),
+        z: reverseNormilizeIndex(z, max)
+    });
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5bMWt":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createGridMesh", ()=>createGridMesh);

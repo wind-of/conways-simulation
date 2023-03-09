@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
+import { reverseNormilizeCoordinates, normilizeIndex, positionToKey } from "./three/coordinates"
+
 const ALIVE_CELL_VALUE = 1
 const DEAD_CELL_VALUE = 0
 
@@ -77,19 +79,6 @@ export function cloneMesh(mesh, { x, z }) {
 	newMesh.position.set(x, 0, z)
 	return newMesh
 }
-
-export const positionToKey = ({ x, z }) => `x${x};z${z}`
-
-export const normilizeIndex = (d, max) => max / 2 + Math.round(d) - 1
-export const reverseNormilizeIndex = (d, max) =>  d - max / 2 + .5
-export const normilizeCoordinates = ({ x, z }, max) => ({
-  x: normilizeIndex(x, max),
-  z: normilizeIndex(z, max)
-})
-export const reverseNormilizeCoordinates = ({ x, z }, max) =>  ({
-  x: reverseNormilizeIndex(x, max),
-  z: reverseNormilizeIndex(z, max)
-})
 
 const randomArray = (length) => Array.from({ length }, () => Math.round(Math.random()))
 
