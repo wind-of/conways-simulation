@@ -562,7 +562,7 @@ var _helpers = require("./helpers");
 var _grid = require("./grid");
 const { renderer , scene , camera  } = (0, _helpers.initialization)();
 const ITERATION_PER_SECOND = 10;
-const MATRIX_SIZE = 100;
+const MATRIX_SIZE = 50;
 const field = (0, _helpers.initializeFieldControls)(MATRIX_SIZE);
 let isIterating = true;
 let iteration = 0;
@@ -598,7 +598,7 @@ window.addEventListener("mousemove", ({ clientX , clientY  })=>{
     if (!isCurrentCellAlive) highlightMesh.position.set(highlightPos.x, 0, highlightPos.z);
 });
 const aliveCellMesh = (0, _helpers.aliveCellFactory)();
-(0, _helpers.displayField)(scene, field, aliveCellMesh);
+field.display(scene, aliveCellMesh);
 window.addEventListener("mousedown", function() {
     if (field.isAlive(highlightMesh.position) || !intersectedCell || isIterating) return;
     const aliveCell = (0, _helpers.cloneMesh)(aliveCellMesh, highlightMesh.position);
@@ -615,7 +615,7 @@ function animate(time) {
             z
         });
         field.applyChanges();
-        (0, _helpers.displayField)(scene, field, aliveCellMesh);
+        field.display(scene, aliveCellMesh);
     } else highlightMesh.material.opacity = (0, _helpers.highlightOpacityFunction)(time);
     (0, _helpers.checkRendererAspect)(renderer, camera);
     renderer.render(scene, camera);
@@ -29969,17 +29969,23 @@ exports.export = function(dest, destName, get) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "resizeRendererToDisplaySize", ()=>resizeRendererToDisplaySize);
+parcelHelpers.export(exports, "fullyTerminateMesh", ()=>fullyTerminateMesh);
 parcelHelpers.export(exports, "initialization", ()=>initialization);
 parcelHelpers.export(exports, "aliveCellFactory", ()=>aliveCellFactory);
 parcelHelpers.export(exports, "horizontalPlaneMesh", ()=>horizontalPlaneMesh);
 parcelHelpers.export(exports, "checkRendererAspect", ()=>checkRendererAspect);
 parcelHelpers.export(exports, "cloneMesh", ()=>cloneMesh);
-parcelHelpers.export(exports, "coordinatesToKey", ()=>coordinatesToKey);
+parcelHelpers.export(exports, "positionToKey", ()=>positionToKey);
+parcelHelpers.export(exports, "normilizeIndex", ()=>normilizeIndex);
+parcelHelpers.export(exports, "reverseNormilizeIndex", ()=>reverseNormilizeIndex);
+parcelHelpers.export(exports, "normilizeCoordinates", ()=>normilizeCoordinates);
+parcelHelpers.export(exports, "reverseNormilizeCoordinates", ()=>reverseNormilizeCoordinates);
 parcelHelpers.export(exports, "initializeFieldControls", ()=>initializeFieldControls);
-parcelHelpers.export(exports, "displayField", ()=>displayField);
 parcelHelpers.export(exports, "highlightOpacityFunction", ()=>highlightOpacityFunction);
 var _three = require("three");
 var _orbitControlsJs = require("three/examples/jsm/controls/OrbitControls.js");
+const ALIVE_CELL_VALUE = 1;
+const DEAD_CELL_VALUE = 0;
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
     const width = canvas.clientWidth;
@@ -29987,6 +29993,11 @@ function resizeRendererToDisplaySize(renderer) {
     const needResize = canvas.width !== width || canvas.height !== height;
     if (needResize) renderer.setSize(width, height, false);
     return needResize;
+}
+function fullyTerminateMesh(scene, mesh) {
+    scene.remove(mesh);
+    mesh.geometry.dispose();
+    mesh.material.dispose();
 }
 function initialization() {
     const renderer = new _three.WebGLRenderer();
@@ -30031,20 +30042,30 @@ function cloneMesh(mesh, { x , z  }) {
     newMesh.position.set(x, 0, z);
     return newMesh;
 }
-const coordinatesToKey = ({ x , z  })=>`x${x};z${z}`;
+const positionToKey = ({ x , z  })=>`x${x};z${z}`;
+const normilizeIndex = (d, max)=>max / 2 + Math.round(d) - 1;
+const reverseNormilizeIndex = (d, max)=>d - max / 2 + .5;
+const normilizeCoordinates = ({ x , z  }, max)=>({
+        x: normilizeIndex(x, max),
+        z: normilizeIndex(z, max)
+    });
+const reverseNormilizeCoordinates = ({ x , z  }, max)=>({
+        x: reverseNormilizeIndex(x, max),
+        z: reverseNormilizeIndex(z, max)
+    });
 const randomArray = (length)=>Array.from({
         length
     }, ()=>Math.round(Math.random()));
-function initializeFieldControls(length) {
+function initializeFieldControls(matrixSize) {
     const matrix = Array.from({
-        length
-    }, ()=>randomArray(length));
+        length: matrixSize
+    }, ()=>randomArray(matrixSize));
     const objects = {};
-    const index = (d)=>length / 2 + Math.round(d) - 1;
+    const index = (d)=>normilizeIndex(d, matrixSize);
     const set = (x, z, v)=>matrix[index(x)][index(z)] = v;
     const get = (x, z)=>matrix[index(x)] && matrix[index(x)][index(z)] || 0;
-    const revive = ({ x , z  })=>set(x, z, 1);
-    const kill = ({ x , z  })=>set(x, z, 0);
+    const revive = ({ x , z  })=>set(x, z, ALIVE_CELL_VALUE);
+    const kill = ({ x , z  })=>set(x, z, DEAD_CELL_VALUE);
     const isAlive = ({ x , z  })=>!!get(x, z);
     const shouldBeAlive = ({ x , z  })=>{
         const isCellAlive = isAlive({
@@ -30062,61 +30083,51 @@ function initializeFieldControls(length) {
         kill,
         isAlive,
         saveObject (mesh) {
-            const key = coordinatesToKey(mesh.position);
+            const key = positionToKey(mesh.position);
             objects[key] = mesh;
         },
         getObject (position) {
-            return objects[coordinatesToKey(position)];
+            return objects[positionToKey(position)];
         },
         removeObject (position) {
-            objects[coordinatesToKey(position)] = null;
+            objects[positionToKey(position)] = null;
         },
         applyChanges () {
-            changes.forEach(({ value , coordinates: { x , z  }  })=>set(x, z, value));
+            changes.forEach(({ value , position: { x , z  }  })=>set(x, z, value));
             changes = [];
         },
-        iterate ({ x , z  }) {
-            const coordinates = {
-                x: x - length / 2 + .5,
-                z: z - length / 2 + .5
-            };
-            const isCellAlive = isAlive(coordinates);
-            if (shouldBeAlive(coordinates)) return !isCellAlive && changes.push({
-                coordinates,
-                value: 1
+        iterate (coordinates) {
+            const position = reverseNormilizeCoordinates(coordinates, matrixSize);
+            const isCellAlive = isAlive(position);
+            if (shouldBeAlive(position)) return !isCellAlive && changes.push({
+                position,
+                value: ALIVE_CELL_VALUE
             });
             else return isCellAlive && changes.push({
-                coordinates,
-                value: 0
+                position,
+                value: DEAD_CELL_VALUE
             });
+        },
+        display (scene, aliveCellMesh) {
+            for(let x = 0; x < matrixSize; x++)for(let z = 0; z < matrixSize; z++){
+                const v = matrix[x][z];
+                const position = reverseNormilizeCoordinates({
+                    x,
+                    z
+                }, matrixSize);
+                const mesh = this.getObject(position);
+                if (v === 1) {
+                    if (mesh) continue;
+                    const aliveCell = cloneMesh(aliveCellMesh, position);
+                    this.saveObject(aliveCell);
+                    scene.add(aliveCell);
+                } else if (mesh) {
+                    fullyTerminateMesh(scene, mesh);
+                    this.removeObject(position);
+                }
+            }
         }
     };
-}
-function displayField(scene, field, aliveCellMesh) {
-    const { matrix  } = field;
-    const matrixSize = matrix.length;
-    for(let x = 0; x < matrixSize; x++)for(let z = 0; z < matrixSize; z++){
-        const v = matrix[x][z];
-        const normalize = (d)=>d + .5;
-        let x_ = normalize(x - matrixSize / 2);
-        let z_ = normalize(z - matrixSize / 2);
-        const position = {
-            x: x_,
-            z: z_
-        };
-        const mesh = field.getObject(position);
-        if (v === 1) {
-            if (mesh) continue;
-            const aliveCell = cloneMesh(aliveCellMesh, position);
-            field.saveObject(aliveCell);
-            scene.add(aliveCell);
-        } else if (mesh) {
-            scene.remove(mesh);
-            mesh.geometry.dispose();
-            mesh.material.dispose();
-            field.removeObject(position);
-        }
-    }
 }
 function highlightOpacityFunction(time) {
     return Math.max(.2, (Math.cos(time / 180) + 1) / 2);

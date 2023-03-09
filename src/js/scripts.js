@@ -1,10 +1,10 @@
 import * as THREE from "three"
-import { aliveCellFactory, horizontalPlaneMesh, initialization, highlightOpacityFunction, checkRendererAspect, initializeFieldControls, cloneMesh, displayField } from "./helpers"
+import { aliveCellFactory, horizontalPlaneMesh, initialization, highlightOpacityFunction, checkRendererAspect, initializeFieldControls, cloneMesh } from "./helpers"
 import { createGridMesh } from "./grid";
 
 const { renderer, scene, camera } = initialization()
 const ITERATION_PER_SECOND = 10
-const MATRIX_SIZE = 100
+const MATRIX_SIZE = 50
 const field = initializeFieldControls(MATRIX_SIZE)
 
 let isIterating = true
@@ -50,7 +50,7 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 });
 
 const aliveCellMesh = aliveCellFactory() 
-displayField(scene, field, aliveCellMesh)
+field.display(scene, aliveCellMesh)
 
 window.addEventListener("mousedown", function() {
 	if(field.isAlive(highlightMesh.position) || !intersectedCell || isIterating) {
@@ -71,7 +71,7 @@ function animate(time) {
 			for(let z = 0; z < matrix[x].length; z++)
 				field.iterate({ x, z })
 		field.applyChanges()
-		displayField(scene, field, aliveCellMesh)
+		field.display(scene, aliveCellMesh)
 	} else {
 		highlightMesh.material.opacity = highlightOpacityFunction(time)
 	}

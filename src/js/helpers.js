@@ -1,6 +1,9 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
+const ALIVE_CELL_VALUE = 1
+const DEAD_CELL_VALUE = 0
+
 export function resizeRendererToDisplaySize(renderer) {
   const canvas = renderer.domElement;
   const width = canvas.clientWidth;
@@ -10,6 +13,12 @@ export function resizeRendererToDisplaySize(renderer) {
     renderer.setSize(width, height, false);
   }
   return needResize;
+}
+
+export function fullyTerminateMesh(scene, mesh) {
+  scene.remove(mesh)
+  mesh.geometry.dispose()
+  mesh.material.dispose()
 }
 
 export function initialization() {
@@ -69,20 +78,31 @@ export function cloneMesh(mesh, { x, z }) {
 	return newMesh
 }
 
-export const coordinatesToKey = ({ x, z }) => `x${x};z${z}`
+export const positionToKey = ({ x, z }) => `x${x};z${z}`
+
+export const normilizeIndex = (d, max) => max / 2 + Math.round(d) - 1
+export const reverseNormilizeIndex = (d, max) =>  d - max / 2 + .5
+export const normilizeCoordinates = ({ x, z }, max) => ({
+  x: normilizeIndex(x, max),
+  z: normilizeIndex(z, max)
+})
+export const reverseNormilizeCoordinates = ({ x, z }, max) =>  ({
+  x: reverseNormilizeIndex(x, max),
+  z: reverseNormilizeIndex(z, max)
+})
 
 const randomArray = (length) => Array.from({ length }, () => Math.round(Math.random()))
 
-export function initializeFieldControls(length) {
-  const matrix = Array.from({ length }, () => randomArray(length));
+export function initializeFieldControls(matrixSize) {
+  const matrix = Array.from({ length: matrixSize }, () => randomArray(matrixSize));
   
   const objects = {}
-  const index = (d) => length / 2 + Math.round(d) - 1
+  const index = (d) => normilizeIndex(d, matrixSize)
   const set = (x, z, v) => matrix[index(x)][index(z)] = v
   const get = (x, z) => matrix[index(x)] && matrix[index(x)][index(z)] || 0
   
-  const revive = ({ x, z }) => set(x, z, 1)
-  const kill = ({ x, z }) => set(x, z, 0)
+  const revive = ({ x, z }) => set(x, z, ALIVE_CELL_VALUE)
+  const kill = ({ x, z }) => set(x, z, DEAD_CELL_VALUE)
   const isAlive = ({ x, z }) => !!get(x, z)
 
   const shouldBeAlive = ({ x, z }) => {
@@ -112,59 +132,48 @@ export function initializeFieldControls(length) {
     isAlive,
     
     saveObject(mesh) {
-      const key = coordinatesToKey(mesh.position)
+      const key = positionToKey(mesh.position)
       objects[key] = mesh
     },
     getObject(position) {
-      return objects[coordinatesToKey(position)]
+      return objects[positionToKey(position)]
     },
     removeObject(position) {
-      objects[coordinatesToKey(position)] = null
+      objects[positionToKey(position)] = null
     },
     applyChanges() {
-      changes.forEach(({ value, coordinates: { x, z } }) => set(x, z, value))
+      changes.forEach(({ value, position: { x, z } }) => set(x, z, value))
       changes = []
     },
-    iterate({ x, z }) {
-      const coordinates = { 
-        x: x - length / 2 + .5,
-        z: z - length / 2 + .5
-      }
-      const isCellAlive = isAlive(coordinates)
-      if(shouldBeAlive(coordinates)) {
-        return !isCellAlive && changes.push({ coordinates, value: 1 })
+    iterate(coordinates) {
+      const position = reverseNormilizeCoordinates(coordinates, matrixSize)
+      const isCellAlive = isAlive(position)
+      if(shouldBeAlive(position)) {
+        return !isCellAlive && changes.push({ position, value: ALIVE_CELL_VALUE })
       } else {
-        return isCellAlive && changes.push({ coordinates, value: 0 })
+        return isCellAlive && changes.push({ position, value: DEAD_CELL_VALUE })
       }
+    },
+    display(scene, aliveCellMesh) {
+      for(let x = 0; x < matrixSize; x++)
+        for(let z = 0; z < matrixSize; z++) {
+          const v = matrix[x][z]
+          const position = reverseNormilizeCoordinates({ x, z }, matrixSize)
+          const mesh = this.getObject(position)
+          if(v === 1) {
+            if(mesh) {
+              continue
+            }
+            const aliveCell = cloneMesh(aliveCellMesh, position)
+            this.saveObject(aliveCell)
+            scene.add(aliveCell) 
+          } else if(mesh) {
+            fullyTerminateMesh(scene, mesh)
+            this.removeObject(position)
+          }
+        }
     }
   }
-}
-
-export function displayField(scene, field, aliveCellMesh) {
-	const { matrix } = field
-  const matrixSize = matrix.length
-	for(let x = 0; x < matrixSize; x++)
-		for(let z = 0; z < matrixSize; z++) {
-			const v = matrix[x][z]
-			const normalize = (d) => d + .5
-			let x_ = normalize(x - matrixSize / 2)
-			let z_ = normalize(z - matrixSize / 2)
-			const position = { x: x_, z: z_ }
-      const mesh = field.getObject(position)
-			if(v === 1) {
-        if(mesh) {
-          continue
-        }
-				const aliveCell = cloneMesh(aliveCellMesh, position)
-				field.saveObject(aliveCell)
-				scene.add(aliveCell) 
-			} else if(mesh) {
-        scene.remove(mesh)
-        mesh.geometry.dispose()
-        mesh.material.dispose()
-        field.removeObject(position)
-			}
-		}
 }
 
 export function highlightOpacityFunction(time) {
