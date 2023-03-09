@@ -559,6 +559,7 @@ function hmrAccept(bundle, id) {
 },{}],"goJYj":[function(require,module,exports) {
 var _three = require("three");
 var _helpers = require("./helpers");
+var _animation = require("./three/animation");
 var _grid = require("./grid");
 const { renderer , scene , camera  } = (0, _helpers.initialization)();
 const ITERATION_PER_SECOND = 10;
@@ -616,14 +617,14 @@ function animate(time) {
         });
         field.applyChanges();
         field.display(scene, aliveCellMesh);
-    } else highlightMesh.material.opacity = (0, _helpers.highlightOpacityFunction)(time);
+    } else highlightMesh.material.opacity = (0, _animation.highlightOpacityAnimation)(time);
     (0, _helpers.checkRendererAspect)(renderer, camera);
     renderer.render(scene, camera);
 }
 renderer.setAnimationLoop(animate);
 window.addEventListener("resize", ()=>(0, _helpers.checkRendererAspect)(renderer, camera));
 
-},{"three":"ktPTu","./helpers":"hGI1E","./grid":"5bMWt"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","./helpers":"hGI1E","./grid":"5bMWt","./three/animation":"acGZY"}],"ktPTu":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2010-2021 Three.js Authors
@@ -29976,7 +29977,6 @@ parcelHelpers.export(exports, "horizontalPlaneMesh", ()=>horizontalPlaneMesh);
 parcelHelpers.export(exports, "checkRendererAspect", ()=>checkRendererAspect);
 parcelHelpers.export(exports, "cloneMesh", ()=>cloneMesh);
 parcelHelpers.export(exports, "initializeFieldControls", ()=>initializeFieldControls);
-parcelHelpers.export(exports, "highlightOpacityFunction", ()=>highlightOpacityFunction);
 var _three = require("three");
 var _orbitControlsJs = require("three/examples/jsm/controls/OrbitControls.js");
 var _coordinates = require("./three/coordinates");
@@ -30113,9 +30113,6 @@ function initializeFieldControls(matrixSize) {
             }
         }
     };
-}
-function highlightOpacityFunction(time) {
-    return Math.max(.2, (Math.cos(time / 180) + 1) / 2);
 }
 
 },{"three":"ktPTu","three/examples/jsm/controls/OrbitControls.js":"7mqRv","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./three/coordinates":"1ydRR"}],"7mqRv":[function(require,module,exports) {
@@ -30867,6 +30864,14 @@ function createGridMesh(mesh) {
     ];
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["hVW7Y","goJYj"], "goJYj", "parcelRequire16be")
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"acGZY":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "highlightOpacityAnimation", ()=>highlightOpacityAnimation);
+function highlightOpacityAnimation(time) {
+    return Math.max(.2, (Math.cos(time / 180) + 1) / 2);
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["hVW7Y","goJYj"], "goJYj", "parcelRequire16be")
 
 //# sourceMappingURL=index.64a4978e.js.map

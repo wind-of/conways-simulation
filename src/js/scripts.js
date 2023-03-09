@@ -1,5 +1,6 @@
 import * as THREE from "three"
-import { aliveCellFactory, horizontalPlaneMesh, initialization, highlightOpacityFunction, checkRendererAspect, initializeFieldControls, cloneMesh } from "./helpers"
+import { aliveCellFactory, horizontalPlaneMesh, initialization, checkRendererAspect, initializeFieldControls, cloneMesh } from "./helpers"
+import { highlightOpacityAnimation } from "./three/animation"
 import { createGridMesh } from "./grid";
 
 const { renderer, scene, camera } = initialization()
@@ -73,7 +74,7 @@ function animate(time) {
 		field.applyChanges()
 		field.display(scene, aliveCellMesh)
 	} else {
-		highlightMesh.material.opacity = highlightOpacityFunction(time)
+		highlightMesh.material.opacity = highlightOpacityAnimation(time)
 	}
 
 	checkRendererAspect(renderer, camera)
