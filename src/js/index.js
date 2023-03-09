@@ -18,13 +18,16 @@ export function shouldIterateAtTime({ iteration, time }) {
 let isIterating = true
 let iteration = 0
 
+const ROOT = new THREE.Object3D()
+scene.add(ROOT)
+
 const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
-scene.add(planeMesh)
-scene.add(...createGridMesh(planeMesh))
+ROOT.add(planeMesh)
+ROOT.add(...createGridMesh(planeMesh))
 
 const highlightMesh = aliveCellFactory()
 highlightMesh.material.visible = false
-scene.add(highlightMesh)
+ROOT.add(highlightMesh)
 
 const mousePosition = new THREE.Vector2()
 const raycaster = new THREE.Raycaster()
@@ -35,7 +38,6 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	mousePosition.y = -(clientY / window.innerHeight) * 2 + 1
 	raycaster.setFromCamera(mousePosition, camera)
 	intersectedCell = raycaster.intersectObject(planeMesh)[0]
-
 	if(!intersectedCell || isIterating) {
 		highlightMesh.material.visible = false
 		return 
@@ -51,7 +53,7 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 });
 
 const aliveCellMesh = aliveCellFactory() 
-field.display(scene, aliveCellMesh)
+field.display(ROOT, aliveCellMesh)
 
 window.addEventListener("mousedown", function() {
 	if(field.isAlive(highlightMesh.position) || !intersectedCell || isIterating) {
@@ -61,7 +63,7 @@ window.addEventListener("mousedown", function() {
 	const aliveCell = cloneMesh(aliveCellMesh, highlightMesh.position);
 	field.revive(highlightMesh.position)
 	field.saveObject(aliveCell)
-	scene.add(aliveCell)
+	ROOT.add(aliveCell)
 });
 
 function animate(time) {
@@ -72,7 +74,7 @@ function animate(time) {
 			for(let z = 0; z < matrix[x].length; z++)
 				field.iterate({ x, z })
 		field.applyChanges()
-		field.display(scene, aliveCellMesh)
+		field.display(ROOT, aliveCellMesh)
 	} else {
 		highlightMesh.material.opacity = highlightOpacityAnimation(time)
 	}
