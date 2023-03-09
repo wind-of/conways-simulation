@@ -1,84 +1,9 @@
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-
 import { reverseNormilizeCoordinates, normilizeIndex, positionToKey } from "./three/coordinates"
+import { fullyTerminateMesh } from "./three/root"
+import { cloneMesh } from "./three/root"
 
 const ALIVE_CELL_VALUE = 1
 const DEAD_CELL_VALUE = 0
-
-export function resizeRendererToDisplaySize(renderer) {
-  const canvas = renderer.domElement;
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
-  const needResize = canvas.width !== width || canvas.height !== height;
-  if (needResize) {
-    renderer.setSize(width, height, false);
-  }
-  return needResize;
-}
-
-export function fullyTerminateMesh(scene, mesh) {
-  scene.remove(mesh)
-  mesh.geometry.dispose()
-  mesh.material.dispose()
-}
-
-export function initialization() {
-  const renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(
-    45,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  const orbit = new OrbitControls(camera, renderer.domElement);
-  camera.position.set(10, 15, -22);
-  orbit.update();
-
-  return { 
-    renderer, 
-    scene, 
-    camera,
-    orbit
-  }
-}
-
-export function aliveCellFactory() {
-  return horizontalPlaneMesh({ 
-    height: 1, 
-    width: 1, 
-    material: {
-      side: THREE.DoubleSide,
-      transparent: true
-    }
-  })
-} 
-
-export function horizontalPlaneMesh({ height, width, material }) {
-  const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(width, height, width, height),
-    new THREE.MeshBasicMaterial(material)
-  )
-  mesh.rotateX(-Math.PI / 2)
-  return mesh
-}
-
-export function checkRendererAspect(renderer, camera) {
-  if (resizeRendererToDisplaySize(renderer)) {
-    const canvas = renderer.domElement;
-    camera.aspect = canvas.clientWidth / canvas.clientHeight;
-    camera.updateProjectionMatrix();
-  }
-}
-
-export function cloneMesh(mesh, { x, z }) {
-	const newMesh = mesh.clone()
-	newMesh.position.set(x, 0, z)
-	return newMesh
-}
 
 const randomArray = (length) => Array.from({ length }, () => Math.round(Math.random()))
 

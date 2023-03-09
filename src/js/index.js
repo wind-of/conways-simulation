@@ -1,9 +1,14 @@
 import * as THREE from "three"
-import { aliveCellFactory, horizontalPlaneMesh, initialization, checkRendererAspect, initializeFieldControls, cloneMesh } from "./helpers"
+import { projectInitialization, cloneMesh } from "./three/root"
+import { checkRendererAspect } from "./three/responsive"
+import { aliveCellFactory } from "./three/meshes/alive-cell"
+import { gameGridPlaneMesh } from "./three/meshes/plane"
 import { highlightOpacityAnimation } from "./three/animation"
+
+import { initializeFieldControls } from "./helpers"
 import { createGridMesh } from "./grid";
 
-const { renderer, scene, camera } = initialization()
+const { renderer, scene, camera } = projectInitialization()
 const ITERATION_PER_SECOND = 10
 const MATRIX_SIZE = 50
 const field = initializeFieldControls(MATRIX_SIZE)
@@ -11,14 +16,7 @@ const field = initializeFieldControls(MATRIX_SIZE)
 let isIterating = true
 let iteration = 0
 
-const planeMesh = horizontalPlaneMesh({ 
-	height: MATRIX_SIZE, 
-	width: MATRIX_SIZE, 
-	material: {
-		side: THREE.DoubleSide,
-		visible: false
-	}
-})
+const planeMesh = gameGridPlaneMesh(MATRIX_SIZE)
 scene.add(planeMesh)
 scene.add(...createGridMesh(planeMesh))
 
