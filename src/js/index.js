@@ -6,17 +6,19 @@ import { gameGridPlaneMesh } from "./three/meshes/plane"
 import { highlightOpacityAnimation } from "./three/animation"
 
 import { initializeFieldControls } from "./helpers"
-import { createGridMesh } from "./grid";
+import { createGridMesh } from "./three/grid";
+import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_MATRIX_SIZE, NO_INTERSECTED_CELL, SECOND_MS, DEFAULT_Y_POSITION } from "./constants"
 
 const { renderer, scene, camera } = projectInitialization()
-const ITERATION_PER_SECOND = 10
-const MATRIX_SIZE = 50
-const field = initializeFieldControls(MATRIX_SIZE)
+const field = initializeFieldControls(DEFAULT_MATRIX_SIZE)
 
+export function shouldIterateAtTime({ iteration, time }) {
+	return iteration < time / (SECOND_MS / DEFAULT_ITERATION_PER_SECOND) | 0
+}
 let isIterating = true
 let iteration = 0
 
-const planeMesh = gameGridPlaneMesh(MATRIX_SIZE)
+const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
 scene.add(planeMesh)
 scene.add(...createGridMesh(planeMesh))
 
@@ -26,7 +28,7 @@ scene.add(highlightMesh)
 
 const mousePosition = new THREE.Vector2()
 const raycaster = new THREE.Raycaster()
-let intersectedCell = null
+let intersectedCell = NO_INTERSECTED_CELL
 
 window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	mousePosition.x = (clientX / window.innerWidth) * 2 - 1
@@ -42,9 +44,9 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	const highlightPos = new THREE.Vector3().copy(intersectedCell.point).floor().addScalar(0.5);
 	const isCurrentCellAlive = field.isAlive(highlightPos)
 	highlightMesh.material.visible = !isCurrentCellAlive
-	intersectedCell = isCurrentCellAlive ? null : intersectedCell
+	intersectedCell = isCurrentCellAlive ? NO_INTERSECTED_CELL : intersectedCell
 	if(!isCurrentCellAlive) { 
-		highlightMesh.position.set(highlightPos.x, 0, highlightPos.z)
+		highlightMesh.position.set(highlightPos.x, DEFAULT_Y_POSITION, highlightPos.z)
 	}
 });
 
@@ -63,7 +65,7 @@ window.addEventListener("mousedown", function() {
 });
 
 function animate(time) {
-	if(isIterating && iteration < time / (1000 / ITERATION_PER_SECOND) | 0) {
+	if(isIterating && shouldIterateAtTime({ iteration, time })) {
 		iteration++
 		const matrix = field.matrix
 		for(let x = 0; x < matrix.length; x++)

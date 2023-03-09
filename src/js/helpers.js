@@ -2,8 +2,7 @@ import { reverseNormilizeCoordinates, normilizeIndex, positionToKey } from "./th
 import { fullyTerminateMesh } from "./three/root"
 import { cloneMesh } from "./three/root"
 
-const ALIVE_CELL_VALUE = 1
-const DEAD_CELL_VALUE = 0
+import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE } from "./constants"
 
 const randomArray = (length) => Array.from({ length }, () => Math.round(Math.random()))
 
