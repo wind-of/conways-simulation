@@ -561,13 +561,14 @@ var _three = require("three");
 var _helpers = require("./helpers");
 var _grid = require("./grid");
 const { renderer , scene , camera  } = (0, _helpers.initialization)();
-const matrixSize = 20;
-const field = (0, _helpers.initializeFieldControls)(matrixSize);
-let isIterating = false;
+const ITERATION_PER_SECOND = 10;
+const MATRIX_SIZE = 100;
+const field = (0, _helpers.initializeFieldControls)(MATRIX_SIZE);
+let isIterating = true;
 let iteration = 0;
 const planeMesh = (0, _helpers.horizontalPlaneMesh)({
-    height: matrixSize,
-    width: matrixSize,
+    height: MATRIX_SIZE,
+    width: MATRIX_SIZE,
     material: {
         side: _three.DoubleSide,
         visible: false
@@ -576,6 +577,7 @@ const planeMesh = (0, _helpers.horizontalPlaneMesh)({
 scene.add(planeMesh);
 scene.add(...(0, _grid.createGridMesh)(planeMesh));
 const highlightMesh = (0, _helpers.aliveCellFactory)();
+highlightMesh.material.visible = false;
 scene.add(highlightMesh);
 const mousePosition = new _three.Vector2();
 const raycaster = new _three.Raycaster();
@@ -585,7 +587,7 @@ window.addEventListener("mousemove", ({ clientX , clientY  })=>{
     mousePosition.y = -(clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mousePosition, camera);
     intersectedCell = raycaster.intersectObject(planeMesh)[0];
-    if (!intersectedCell) {
+    if (!intersectedCell || isIterating) {
         highlightMesh.material.visible = false;
         return;
     }
@@ -596,35 +598,24 @@ window.addEventListener("mousemove", ({ clientX , clientY  })=>{
     if (!isCurrentCellAlive) highlightMesh.position.set(highlightPos.x, 0, highlightPos.z);
 });
 const aliveCellMesh = (0, _helpers.aliveCellFactory)();
-{
-    const { matrix  } = field;
-    for(let x = 0; x < matrix.length; x++)for(let z = 0; z < matrix[x].length; z++){
-        const v = matrix[x][z];
-        const normalize = (d)=>d + .5;
-        let x_ = normalize(x - matrixSize / 2);
-        let z_ = normalize(z - matrixSize / 2);
-        if (v === 1) {
-            const aliveCell = (0, _helpers.cloneMesh)(aliveCellMesh, {
-                x: x_,
-                z: z_
-            });
-            scene.add(aliveCell);
-        }
-    }
-}window.addEventListener("mousedown", function() {
+(0, _helpers.displayField)(scene, field, aliveCellMesh);
+window.addEventListener("mousedown", function() {
     if (field.isAlive(highlightMesh.position) || !intersectedCell || isIterating) return;
-    field.revive(highlightMesh.position);
     const aliveCell = (0, _helpers.cloneMesh)(aliveCellMesh, highlightMesh.position);
+    field.revive(highlightMesh.position);
+    field.saveObject(aliveCell);
     scene.add(aliveCell);
 });
 function animate(time) {
-    if (isIterating && iteration < time / 1000 | 0) {
+    if (isIterating && iteration < time / (1000 / ITERATION_PER_SECOND) | 0) {
+        iteration++;
         const matrix = field.matrix;
         for(let x = 0; x < matrix.length; x++)for(let z = 0; z < matrix[x].length; z++)field.iterate({
             x,
             z
         });
         field.applyChanges();
+        (0, _helpers.displayField)(scene, field, aliveCellMesh);
     } else highlightMesh.material.opacity = (0, _helpers.highlightOpacityFunction)(time);
     (0, _helpers.checkRendererAspect)(renderer, camera);
     renderer.render(scene, camera);
@@ -29985,10 +29976,10 @@ parcelHelpers.export(exports, "checkRendererAspect", ()=>checkRendererAspect);
 parcelHelpers.export(exports, "cloneMesh", ()=>cloneMesh);
 parcelHelpers.export(exports, "coordinatesToKey", ()=>coordinatesToKey);
 parcelHelpers.export(exports, "initializeFieldControls", ()=>initializeFieldControls);
+parcelHelpers.export(exports, "displayField", ()=>displayField);
 parcelHelpers.export(exports, "highlightOpacityFunction", ()=>highlightOpacityFunction);
 var _three = require("three");
 var _orbitControlsJs = require("three/examples/jsm/controls/OrbitControls.js");
-var _templates = require("./templates");
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
     const width = canvas.clientWidth;
@@ -30070,14 +30061,24 @@ function initializeFieldControls(length) {
         revive,
         kill,
         isAlive,
+        saveObject (mesh) {
+            const key = coordinatesToKey(mesh.position);
+            objects[key] = mesh;
+        },
+        getObject (position) {
+            return objects[coordinatesToKey(position)];
+        },
+        removeObject (position) {
+            objects[coordinatesToKey(position)] = null;
+        },
         applyChanges () {
             changes.forEach(({ value , coordinates: { x , z  }  })=>set(x, z, value));
             changes = [];
         },
         iterate ({ x , z  }) {
             const coordinates = {
-                x: x - length / 2,
-                z: z - length / 2
+                x: x - length / 2 + .5,
+                z: z - length / 2 + .5
             };
             const isCellAlive = isAlive(coordinates);
             if (shouldBeAlive(coordinates)) return !isCellAlive && changes.push({
@@ -30091,11 +30092,37 @@ function initializeFieldControls(length) {
         }
     };
 }
+function displayField(scene, field, aliveCellMesh) {
+    const { matrix  } = field;
+    const matrixSize = matrix.length;
+    for(let x = 0; x < matrixSize; x++)for(let z = 0; z < matrixSize; z++){
+        const v = matrix[x][z];
+        const normalize = (d)=>d + .5;
+        let x_ = normalize(x - matrixSize / 2);
+        let z_ = normalize(z - matrixSize / 2);
+        const position = {
+            x: x_,
+            z: z_
+        };
+        const mesh = field.getObject(position);
+        if (v === 1) {
+            if (mesh) continue;
+            const aliveCell = cloneMesh(aliveCellMesh, position);
+            field.saveObject(aliveCell);
+            scene.add(aliveCell);
+        } else if (mesh) {
+            scene.remove(mesh);
+            mesh.geometry.dispose();
+            mesh.material.dispose();
+            field.removeObject(position);
+        }
+    }
+}
 function highlightOpacityFunction(time) {
     return Math.max(.2, (Math.cos(time / 180) + 1) / 2);
 }
 
-},{"three":"ktPTu","three/examples/jsm/controls/OrbitControls.js":"7mqRv","@parcel/transformer-js/src/esmodule-helpers.js":"8Zvfd","./templates":"18mfC"}],"7mqRv":[function(require,module,exports) {
+},{"three":"ktPTu","three/examples/jsm/controls/OrbitControls.js":"7mqRv","@parcel/transformer-js/src/esmodule-helpers.js":"8Zvfd"}],"7mqRv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "OrbitControls", ()=>OrbitControls);
@@ -30800,454 +30827,7 @@ class MapControls extends OrbitControls {
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"8Zvfd"}],"18mfC":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "test", ()=>test);
-const test = [
-    [
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ],
-    [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ]
-];
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"8Zvfd"}],"5bMWt":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"8Zvfd"}],"5bMWt":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createGridMesh", ()=>createGridMesh);
