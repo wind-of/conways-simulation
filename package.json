@@ -4,7 +4,7 @@
   "description": "",
   "main": "scripts.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "parcel src/index.html"
   },
   "keywords": [],
   "author": "",
@@ -14,8 +14,8 @@
     "three": "^0.133.0"
   },
   "devDependencies": {
-    "@parcel/transformer-image": "^2.0.0-rc.0",
     "cssnano": "^5.0.8",
+    "parcel": "^2.8.3",
     "postcss": "^8.3.8"
   }
 }
