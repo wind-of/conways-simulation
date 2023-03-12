@@ -8,24 +8,23 @@ export function initializeSimulation(root) {
 		isIterating: false,
 		iteration: 0,
 		matrixSize: DEFAULT_MATRIX_SIZE,
-		field: initializeFieldControls(DEFAULT_MATRIX_SIZE),
+		field: initializeFieldControls({ matrixSize: DEFAULT_MATRIX_SIZE, root }),
 		toggleIteration() {
 			this.isIterating = !this.isIterating
 		},
 		shouldIterateAtTime({ time }) {
-			return this.iteration < time / (SECOND_MS / DEFAULT_ITERATION_PER_SECOND) | 0
+			return this.iteration < ((time / (SECOND_MS / DEFAULT_ITERATION_PER_SECOND)) | 0)
 		},
-		iterate({ time, aliveCellMesh }) {
-			if(!this.shouldIterateAtTime({ time })) {
+		iterate({ time }) {
+			if (!this.shouldIterateAtTime({ time })) {
 				return
 			}
 			this.iteration++
 			const field = this.field
-			for(let x = 0; x < this.matrixSize; x++)
-				for(let z = 0; z < this.matrixSize; z++)
-					field.iterate({ x, z })
+			for (let x = 0; x < this.matrixSize; x++)
+				for (let z = 0; z < this.matrixSize; z++) field.iterate({ x, z })
 			field.applyChanges()
-			field.display(this.root, aliveCellMesh)
+			field.display()
 		}
 	}
 }

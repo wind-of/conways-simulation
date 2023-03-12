@@ -1,77 +1,59 @@
 import * as THREE from "three"
-import { projectInitialization, cloneMesh, fullyTerminateMesh } from "./three/root"
+import { projectInitialization, fullyTerminateMesh, cloneMesh } from "./three/root"
 import { checkRendererAspect } from "./three/responsive"
-import { aliveCellFactory } from "./three/meshes/alive-cell"
+import { aliveCellMesh } from "./three/meshes/cell"
 import { gameGridPlaneMesh } from "./three/meshes/plane"
-import { highlightOpacityAnimation } from "./three/animation"
 import { createGridMesh } from "./three/grid"
 import { normalizedRaycasterObjectPosition } from "./three/coordinates"
 
-import {
-	DEFAULT_MATRIX_SIZE,
-	NO_INTERSECTED_CELL,
-	DEFAULT_Y_POSITION,
-	SPACE_KEY
-} from "./constants"
+import { DEFAULT_MATRIX_SIZE, SPACE_KEY } from "./constants"
 import { initializeSimulation } from "./simulation"
+import { initializeRaycaster } from "./three/raycaster"
 
 const { renderer, scene, camera } = projectInitialization()
 const ROOT = new THREE.Object3D()
+const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
 const simulation = initializeSimulation(ROOT)
+const raycaster = initializeRaycaster({ object: planeMesh, camera })
 const { field } = simulation
 
 scene.add(ROOT)
-
-const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
 ROOT.add(planeMesh, ...createGridMesh(planeMesh))
-
-// TODO: выделить всю логику, связанную с подсвечиваемой клеткой, в единый объект
-const highlightMesh = aliveCellFactory()
-highlightMesh.material.visible = false
-ROOT.add(highlightMesh)
-
-const mousePosition = new THREE.Vector2()
-const raycaster = new THREE.Raycaster()
-let intersectedCell = NO_INTERSECTED_CELL
+field.display()
 
 window.addEventListener("keydown", ({ key }) => {
 	if (key === SPACE_KEY) {
 		simulation.toggleIteration()
-		highlightMesh.material.visible = !simulation.isIterating
+		field.setHintVisibility(!simulation.isIterating)
 	}
 })
 
 window.addEventListener("mousemove", ({ clientX, clientY }) => {
-	mousePosition.x = (clientX / window.innerWidth) * 2 - 1
-	mousePosition.y = -(clientY / window.innerHeight) * 2 + 1
-	raycaster.setFromCamera(mousePosition, camera)
-	intersectedCell = raycaster.intersectObject(planeMesh)[0]
-	highlightMesh.material.visible = false
+	raycaster.setMousePosition({ x: clientX, y: clientY })
+	const intersectedCell = raycaster.getIntersectedCell()
+	field.setHintVisibility(false)
 	if (!intersectedCell || simulation.isIterating) {
 		return
 	}
 
 	const targetPosition = normalizedRaycasterObjectPosition({ object: intersectedCell })
 	const isTargetAlive = field.isAlive(targetPosition)
-	highlightMesh.material.visible = !isTargetAlive
+	field.setHintVisibility(!isTargetAlive)
 	if (!isTargetAlive) {
-		highlightMesh.position.set(targetPosition.x, DEFAULT_Y_POSITION, targetPosition.z)
+		field.setHintPosition(targetPosition)
 	}
 })
 
-const aliveCellMesh = aliveCellFactory()
-field.display(ROOT, aliveCellMesh)
-
 window.addEventListener("mousedown", function () {
-	const position = normalizedRaycasterObjectPosition({ object: intersectedCell })
+	const position = normalizedRaycasterObjectPosition({ object: raycaster.getIntersectedCell() })
 	const mesh = field.getObject(position)
 	if (simulation.isIterating) {
 		return
 	}
 	if (mesh) {
 		fullyTerminateMesh(ROOT, mesh)
-		field.removeObject(position)
 		field.kill(position)
+		field.removeObject(position)
 	} else {
 		const aliveCell = cloneMesh(aliveCellMesh, position)
 		field.revive(position)
@@ -82,9 +64,9 @@ window.addEventListener("mousedown", function () {
 
 function animate(time) {
 	if (simulation.isIterating) {
-		simulation.iterate({ time, aliveCellMesh })
+		simulation.iterate({ time })
 	} else {
-		highlightMesh.material.opacity = highlightOpacityAnimation(time)
+		field.animateHint({ time })
 	}
 
 	checkRendererAspect(renderer, camera)
