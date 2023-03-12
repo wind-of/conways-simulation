@@ -4,8 +4,9 @@ import { checkRendererAspect } from "./three/responsive"
 import { aliveCellFactory } from "./three/meshes/alive-cell"
 import { gameGridPlaneMesh } from "./three/meshes/plane"
 import { highlightOpacityAnimation } from "./three/animation"
+import { createGridMesh } from "./three/grid"
+import { normalizedRaycasterObjectPosition } from "./three/coordinates"
 
-import { createGridMesh } from "./three/grid";
 import { DEFAULT_MATRIX_SIZE, NO_INTERSECTED_CELL, DEFAULT_Y_POSITION, SPACE_KEY } from "./constants"
 import { initializeSimulation } from "./simulation"
 
@@ -19,6 +20,7 @@ scene.add(ROOT)
 const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
 ROOT.add(planeMesh, ...createGridMesh(planeMesh))
 
+// TODO: выделить всю логику, связанную с подсвечиваемой клеткой, в единый объект
 const highlightMesh = aliveCellFactory()
 highlightMesh.material.visible = false
 ROOT.add(highlightMesh)
@@ -36,17 +38,16 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	mousePosition.y = -(clientY / window.innerHeight) * 2 + 1
 	raycaster.setFromCamera(mousePosition, camera)
 	intersectedCell = raycaster.intersectObject(planeMesh)[0]
+
 	if(!intersectedCell || simulation.isIterating) {
-		highlightMesh.material.visible = false
 		return
 	}
 
-	const highlightPos = new THREE.Vector3().copy(intersectedCell.point).floor().addScalar(0.5);
-	const isCurrentCellAlive = field.isAlive(highlightPos)
-	highlightMesh.material.visible = !isCurrentCellAlive
-	intersectedCell = isCurrentCellAlive ? NO_INTERSECTED_CELL : intersectedCell
-	if(!isCurrentCellAlive) { 
-		highlightMesh.position.set(highlightPos.x, DEFAULT_Y_POSITION, highlightPos.z)
+	const targetPosition = normalizedRaycasterObjectPosition(intersectedCell)
+	const isTargetAlive = field.isAlive(targetPosition)
+	highlightMesh.material.visible = !isTargetAlive
+	if(!isTargetAlive) { 
+		highlightMesh.position.set(targetPosition.x, DEFAULT_Y_POSITION, targetPosition.z)
 	}
 });
 
@@ -54,12 +55,13 @@ const aliveCellMesh = aliveCellFactory()
 field.display(ROOT, aliveCellMesh)
 
 window.addEventListener("mousedown", function() {
-	if(field.isAlive(highlightMesh.position) || !intersectedCell || simulation.isIterating) {
+	const position = normalizedRaycasterObjectPosition(intersectedCell)
+	if(field.isAlive(position) || simulation.isIterating) {
 		return
 	}
 
-	const aliveCell = cloneMesh(aliveCellMesh, highlightMesh.position);
-	field.revive(highlightMesh.position)
+	const aliveCell = cloneMesh(aliveCellMesh, position);
+	field.revive(position)
 	field.saveObject(aliveCell)
 	ROOT.add(aliveCell)
 });
