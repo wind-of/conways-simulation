@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { projectInitialization, cloneMesh } from "./three/root"
+import { projectInitialization, cloneMesh, fullyTerminateMesh } from "./three/root"
 import { checkRendererAspect } from "./three/responsive"
 import { aliveCellFactory } from "./three/meshes/alive-cell"
 import { gameGridPlaneMesh } from "./three/meshes/plane"
@@ -59,14 +59,20 @@ field.display(ROOT, aliveCellMesh)
 
 window.addEventListener("mousedown", function() {
 	const position = normalizedRaycasterObjectPosition({ object: intersectedCell })
-	if(field.isAlive(position) || simulation.isIterating) {
+	const mesh = field.getObject(position)
+	if(simulation.isIterating) {
 		return
 	}
-
-	const aliveCell = cloneMesh(aliveCellMesh, position);
-	field.revive(position)
-	field.saveObject(aliveCell)
-	ROOT.add(aliveCell)
+	if(mesh) {
+		fullyTerminateMesh(ROOT, mesh)
+		field.removeObject(position)
+		field.kill(position)
+	} else {
+		const aliveCell = cloneMesh(aliveCellMesh, position);
+		field.revive(position)
+		field.saveObject(aliveCell)
+		ROOT.add(aliveCell)
+	}
 });
 
 function animate(time) {
