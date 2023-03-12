@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
+import { DEFAULT_Y_POSITION } from "../constants";
 
 export function projectInitialization() {
   const renderer = new THREE.WebGLRenderer();
@@ -26,7 +27,7 @@ export function projectInitialization() {
 
 export function cloneMesh(mesh, { x, z }) {
 	const newMesh = mesh.clone()
-	newMesh.position.set(x, 0, z)
+	newMesh.position.set(x, DEFAULT_Y_POSITION, z)
 	return newMesh
 }
 

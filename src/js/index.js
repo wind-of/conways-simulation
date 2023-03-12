@@ -11,10 +11,10 @@ import { DEFAULT_MATRIX_SIZE, NO_INTERSECTED_CELL, DEFAULT_Y_POSITION, SPACE_KEY
 import { initializeSimulation } from "./simulation"
 
 const { renderer, scene, camera } = projectInitialization()
-const simulation = initializeSimulation()
+const ROOT = new THREE.Object3D()
+const simulation = initializeSimulation(ROOT)
 const { field } = simulation
 
-const ROOT = new THREE.Object3D()
 scene.add(ROOT)
 
 const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
@@ -30,7 +30,10 @@ const raycaster = new THREE.Raycaster()
 let intersectedCell = NO_INTERSECTED_CELL
 
 window.addEventListener("keydown", ({ key }) => {
-	if(key === SPACE_KEY) simulation.isIterating = !simulation.isIterating
+	if(key === SPACE_KEY) {
+		simulation.toggleIteration()
+		highlightMesh.material.visible = !simulation.isIterating
+	}
 })
 
 window.addEventListener("mousemove", ({ clientX, clientY }) => {
@@ -38,7 +41,7 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	mousePosition.y = -(clientY / window.innerHeight) * 2 + 1
 	raycaster.setFromCamera(mousePosition, camera)
 	intersectedCell = raycaster.intersectObject(planeMesh)[0]
-
+	highlightMesh.material.visible = false
 	if(!intersectedCell || simulation.isIterating) {
 		return
 	}
@@ -67,14 +70,8 @@ window.addEventListener("mousedown", function() {
 });
 
 function animate(time) {
-	if(simulation.isIterating && simulation.shouldIterateAtTime({ time })) {
-		simulation.iteration++
-		const matrix = field.matrix
-		for(let x = 0; x < matrix.length; x++)
-			for(let z = 0; z < matrix[x].length; z++)
-				field.iterate({ x, z })
-		field.applyChanges()
-		field.display(ROOT, aliveCellMesh)
+	if(simulation.isIterating) {
+		simulation.iterate({ time, aliveCellMesh })
 	} else {
 		highlightMesh.material.opacity = highlightOpacityAnimation(time)
 	}
