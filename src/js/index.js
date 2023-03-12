@@ -46,7 +46,7 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 		return
 	}
 
-	const targetPosition = normalizedRaycasterObjectPosition(intersectedCell)
+	const targetPosition = normalizedRaycasterObjectPosition({ object: intersectedCell })
 	const isTargetAlive = field.isAlive(targetPosition)
 	highlightMesh.material.visible = !isTargetAlive
 	if(!isTargetAlive) { 
@@ -58,7 +58,7 @@ const aliveCellMesh = aliveCellFactory()
 field.display(ROOT, aliveCellMesh)
 
 window.addEventListener("mousedown", function() {
-	const position = normalizedRaycasterObjectPosition(intersectedCell)
+	const position = normalizedRaycasterObjectPosition({ object: intersectedCell })
 	if(field.isAlive(position) || simulation.isIterating) {
 		return
 	}

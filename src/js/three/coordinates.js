@@ -13,4 +13,10 @@ export const reverseNormilizeCoordinates = ({ x, z }, max) =>  ({
   z: reverseNormilizeIndex(z, max)
 })
 
-export const normalizedRaycasterObjectPosition = (object) => new THREE.Vector3().copy(object.point).floor().addScalar(0.5) 
+export const normalizedRaycasterObjectPosition = ({ object, offsetVector }) => {
+  const position = new THREE.Vector3().copy(object.point).floor().addScalar(0.5)
+  if(offsetVector) {
+    position.add(offsetVector)
+  } 
+  return position
+} 
