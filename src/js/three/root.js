@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-import { DEFAULT_Y_POSITION } from "../constants";
+import { DEFAULT_FOV, DEFAULT_NEAR, DEFAULT_FAR, DEFAULT_Y_POSITION } from "../constants";
 
 export function projectInitialization() {
   const renderer = new THREE.WebGLRenderer();
@@ -8,13 +8,13 @@ export function projectInitialization() {
   document.body.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
-    45,
+    DEFAULT_FOV,
     window.innerWidth / window.innerHeight,
-    0.1,
-    1000
+    DEFAULT_NEAR,
+    DEFAULT_FAR
   );
   const orbit = new OrbitControls(camera, renderer.domElement);
-  camera.position.set(0, 25, -50);
+  camera.position.set(0, 100, -100);
   orbit.update();
 
   return { 
