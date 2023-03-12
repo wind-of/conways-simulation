@@ -4,17 +4,30 @@
   "description": "",
   "main": "scripts.js",
   "scripts": {
-    "start": "parcel src/index.html"
+    "start": "parcel src/index.html",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
   "dependencies": {
     "img": "^3.0.3",
     "three": "^0.133.0"
   },
   "devDependencies": {
     "cssnano": "^5.0.8",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "8.7.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.0",
+    "lint-staged": "^13.2.0",
     "parcel": "^2.8.3",
     "postcss": "^8.3.8"
   }

@@ -7,7 +7,12 @@ import { highlightOpacityAnimation } from "./three/animation"
 import { createGridMesh } from "./three/grid"
 import { normalizedRaycasterObjectPosition } from "./three/coordinates"
 
-import { DEFAULT_MATRIX_SIZE, NO_INTERSECTED_CELL, DEFAULT_Y_POSITION, SPACE_KEY } from "./constants"
+import {
+	DEFAULT_MATRIX_SIZE,
+	NO_INTERSECTED_CELL,
+	DEFAULT_Y_POSITION,
+	SPACE_KEY
+} from "./constants"
 import { initializeSimulation } from "./simulation"
 
 const { renderer, scene, camera } = projectInitialization()
@@ -30,7 +35,7 @@ const raycaster = new THREE.Raycaster()
 let intersectedCell = NO_INTERSECTED_CELL
 
 window.addEventListener("keydown", ({ key }) => {
-	if(key === SPACE_KEY) {
+	if (key === SPACE_KEY) {
 		simulation.toggleIteration()
 		highlightMesh.material.visible = !simulation.isIterating
 	}
@@ -42,41 +47,41 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	raycaster.setFromCamera(mousePosition, camera)
 	intersectedCell = raycaster.intersectObject(planeMesh)[0]
 	highlightMesh.material.visible = false
-	if(!intersectedCell || simulation.isIterating) {
+	if (!intersectedCell || simulation.isIterating) {
 		return
 	}
 
 	const targetPosition = normalizedRaycasterObjectPosition({ object: intersectedCell })
 	const isTargetAlive = field.isAlive(targetPosition)
 	highlightMesh.material.visible = !isTargetAlive
-	if(!isTargetAlive) { 
+	if (!isTargetAlive) {
 		highlightMesh.position.set(targetPosition.x, DEFAULT_Y_POSITION, targetPosition.z)
 	}
-});
+})
 
-const aliveCellMesh = aliveCellFactory() 
+const aliveCellMesh = aliveCellFactory()
 field.display(ROOT, aliveCellMesh)
 
-window.addEventListener("mousedown", function() {
+window.addEventListener("mousedown", function () {
 	const position = normalizedRaycasterObjectPosition({ object: intersectedCell })
 	const mesh = field.getObject(position)
-	if(simulation.isIterating) {
+	if (simulation.isIterating) {
 		return
 	}
-	if(mesh) {
+	if (mesh) {
 		fullyTerminateMesh(ROOT, mesh)
 		field.removeObject(position)
 		field.kill(position)
 	} else {
-		const aliveCell = cloneMesh(aliveCellMesh, position);
+		const aliveCell = cloneMesh(aliveCellMesh, position)
 		field.revive(position)
 		field.saveObject(aliveCell)
 		ROOT.add(aliveCell)
 	}
-});
+})
 
 function animate(time) {
-	if(simulation.isIterating) {
+	if (simulation.isIterating) {
 		simulation.iterate({ time, aliveCellMesh })
 	} else {
 		highlightMesh.material.opacity = highlightOpacityAnimation(time)

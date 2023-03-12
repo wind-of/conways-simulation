@@ -1,0 +1,21 @@
+{
+  "printWidth": 100,
+  "singleQuote": false,
+  "jsxSingleQuote": false,
+  "arrowParens": "always",
+  "tabWidth": 2,
+  "useTabs": true,
+  "bracketSpacing": true,
+  "quoteProps": "as-needed",
+  "trailingComma": "none",
+  "parser": "babel",
+  "semi": false,
+  "importOrder": [
+    "^@core/(.*)$",
+    "^@server/(.*)$",
+    "^@ui/(.*)$",
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
+}
