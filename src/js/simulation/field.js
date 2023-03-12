@@ -1,8 +1,8 @@
-import { reverseNormilizeCoordinates, normilizeIndex, positionToKey } from "./three/coordinates"
-import { fullyTerminateMesh } from "./three/root"
-import { cloneMesh } from "./three/root"
+import { reverseNormilizeCoordinates, normilizeIndex, positionToKey } from "../three/coordinates"
+import { fullyTerminateMesh } from "../three/root"
+import { cloneMesh } from "../three/root"
 
-import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE } from "./constants"
+import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE } from "../constants"
 
 const randomArray = (length) => Array.from({ length }, () => Math.round(Math.random()))
 

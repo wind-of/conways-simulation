@@ -5,25 +5,19 @@ import { aliveCellFactory } from "./three/meshes/alive-cell"
 import { gameGridPlaneMesh } from "./three/meshes/plane"
 import { highlightOpacityAnimation } from "./three/animation"
 
-import { initializeFieldControls } from "./helpers"
 import { createGridMesh } from "./three/grid";
-import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_MATRIX_SIZE, NO_INTERSECTED_CELL, SECOND_MS, DEFAULT_Y_POSITION, SPACE_KEY } from "./constants"
+import { DEFAULT_MATRIX_SIZE, NO_INTERSECTED_CELL, DEFAULT_Y_POSITION, SPACE_KEY } from "./constants"
+import { initializeSimulation } from "./simulation"
 
 const { renderer, scene, camera } = projectInitialization()
-const field = initializeFieldControls(DEFAULT_MATRIX_SIZE)
-
-export function shouldIterateAtTime({ iteration, time }) {
-	return iteration < time / (SECOND_MS / DEFAULT_ITERATION_PER_SECOND) | 0
-}
-let isIterating = true
-let iteration = 0
+const simulation = initializeSimulation()
+const { field } = simulation
 
 const ROOT = new THREE.Object3D()
 scene.add(ROOT)
 
 const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
-ROOT.add(planeMesh)
-ROOT.add(...createGridMesh(planeMesh))
+ROOT.add(planeMesh, ...createGridMesh(planeMesh))
 
 const highlightMesh = aliveCellFactory()
 highlightMesh.material.visible = false
@@ -34,7 +28,7 @@ const raycaster = new THREE.Raycaster()
 let intersectedCell = NO_INTERSECTED_CELL
 
 window.addEventListener("keydown", ({ key }) => {
-	if(key === SPACE_KEY) isIterating = !isIterating
+	if(key === SPACE_KEY) simulation.isIterating = !simulation.isIterating
 })
 
 window.addEventListener("mousemove", ({ clientX, clientY }) => {
@@ -42,7 +36,7 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	mousePosition.y = -(clientY / window.innerHeight) * 2 + 1
 	raycaster.setFromCamera(mousePosition, camera)
 	intersectedCell = raycaster.intersectObject(planeMesh)[0]
-	if(!intersectedCell || isIterating) {
+	if(!intersectedCell || simulation.isIterating) {
 		highlightMesh.material.visible = false
 		return
 	}
@@ -60,7 +54,7 @@ const aliveCellMesh = aliveCellFactory()
 field.display(ROOT, aliveCellMesh)
 
 window.addEventListener("mousedown", function() {
-	if(field.isAlive(highlightMesh.position) || !intersectedCell || isIterating) {
+	if(field.isAlive(highlightMesh.position) || !intersectedCell || simulation.isIterating) {
 		return
 	}
 
@@ -71,8 +65,8 @@ window.addEventListener("mousedown", function() {
 });
 
 function animate(time) {
-	if(isIterating && shouldIterateAtTime({ iteration, time })) {
-		iteration++
+	if(simulation.isIterating && simulation.shouldIterateAtTime({ time })) {
+		simulation.iteration++
 		const matrix = field.matrix
 		for(let x = 0; x < matrix.length; x++)
 			for(let z = 0; z < matrix[x].length; z++)
