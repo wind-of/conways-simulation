@@ -9,8 +9,9 @@ import {
 	DEFAULT_MATRIX_SIZE
 } from "../constants"
 import { createAliveCellMesh, aliveCellMesh } from "../three/meshes/cell"
-import { hintOpacityAnimation } from "../three/animation"
+import { hintOpacityAnimation, hintTerminationOpacityAnimation } from "../three/animation"
 import { zeroMatrix } from "../utils"
+import { COLOR_ORANGE, COLOR_WHITE } from "../three/colors"
 
 export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SIZE, root }) {
 	matrix = matrix || zeroMatrix(matrixSize)
@@ -47,12 +48,23 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 	return {
 		matrix,
 		objects,
+
 		hintMesh,
+		hintAnimationFunction: hintOpacityAnimation,
 		setHintVisibility(value) {
 			this.hintMesh.material.visible = value
 		},
 		setHintPosition({ x, z }) {
-			this.hintMesh.position.set(x, DEFAULT_Y_POSITION, z)
+			this.hintMesh.position.set(x, DEFAULT_Y_POSITION + 0.008, z)
+		},
+		setHintsDefaultState() {
+			this.hintAnimationFunction = hintOpacityAnimation
+			this.hintMesh.material.color = COLOR_WHITE
+			this.setHintVisibility(true)
+		},
+		setHintsTerminationState() {
+			this.hintAnimationFunction = hintTerminationOpacityAnimation
+			this.hintMesh.material.color = COLOR_ORANGE
 		},
 		isHintVisible() {
 			return this.hintMesh.visible
@@ -61,7 +73,7 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 			if (!this.isHintVisible()) {
 				return
 			}
-			this.hintMesh.material.opacity = hintOpacityAnimation(time)
+			this.hintMesh.material.opacity = this.hintAnimationFunction(time)
 		},
 
 		revive,

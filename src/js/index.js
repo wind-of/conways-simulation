@@ -31,16 +31,18 @@ window.addEventListener("keydown", ({ key }) => {
 window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	raycaster.setMousePosition({ x: clientX, y: clientY })
 	const intersectedCell = raycaster.getIntersectedCell()
-	field.setHintVisibility(false)
 	if (!intersectedCell || simulation.isIterating) {
+		field.setHintVisibility(false)
 		return
 	}
+	field.setHintsDefaultState()
 
 	const targetPosition = normalizedRaycasterObjectPosition({ object: intersectedCell })
 	const isTargetAlive = field.isAlive(targetPosition)
-	field.setHintVisibility(!isTargetAlive)
-	if (!isTargetAlive) {
-		field.setHintPosition(targetPosition)
+	field.setHintPosition(targetPosition)
+
+	if (isTargetAlive) {
+		field.setHintsTerminationState()
 	}
 })
 
