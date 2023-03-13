@@ -11,7 +11,7 @@ import {
 import { createAliveCellMesh, aliveCellMesh } from "../three/meshes/cell"
 import { hintOpacityAnimation, hintTerminationOpacityAnimation } from "../three/animation"
 import { zeroMatrix } from "../utils"
-import { COLOR_ORANGE, COLOR_WHITE } from "../three/colors"
+import { COLOR_BLUE, COLOR_WHITE } from "../three/colors"
 
 export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SIZE, root }) {
 	matrix = matrix || zeroMatrix(matrixSize)
@@ -64,7 +64,7 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 		},
 		setHintsTerminationState() {
 			this.hintAnimationFunction = hintTerminationOpacityAnimation
-			this.hintMesh.material.color = COLOR_ORANGE
+			this.hintMesh.material.color = COLOR_BLUE
 		},
 		isHintVisible() {
 			return this.hintMesh.visible
