@@ -1,14 +1,20 @@
 import { reverseNormilizeCoordinates, normilizeIndex, positionToKey } from "../three/coordinates"
 import { fullyTerminateMesh, cloneMesh } from "../three/root"
 
-import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE, DEFAULT_Y_POSITION } from "../constants"
+import {
+	ALIVE_CELL_VALUE,
+	DEAD_CELL_VALUE,
+	DEFAULT_Y_POSITION,
+	NO_CELL_VALUE,
+	DEFAULT_MATRIX_SIZE
+} from "../constants"
 import { createAliveCellMesh, aliveCellMesh } from "../three/meshes/cell"
 import { hintOpacityAnimation } from "../three/animation"
+import { zeroMatrix } from "../utils"
 
-const randomArray = (length) => Array.from({ length }, () => Math.round(Math.random()))
+export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SIZE, root }) {
+	matrix = matrix || zeroMatrix(matrixSize)
 
-export function initializeFieldControls({ matrixSize, root }) {
-	const matrix = Array.from({ length: matrixSize }, () => randomArray(matrixSize))
 	const objects = {}
 
 	const hintMesh = createAliveCellMesh()
@@ -17,7 +23,7 @@ export function initializeFieldControls({ matrixSize, root }) {
 
 	const index = (d) => normilizeIndex(d, matrixSize)
 	const set = (x, z, v) => (matrix[index(x)][index(z)] = v)
-	const get = (x, z) => (matrix[index(x)] && matrix[index(x)][index(z)]) || 0
+	const get = (x, z) => (matrix[index(x)] && matrix[index(x)][index(z)]) || NO_CELL_VALUE
 
 	const revive = ({ x, z }) => set(x, z, ALIVE_CELL_VALUE)
 	const kill = ({ x, z }) => set(x, z, DEAD_CELL_VALUE)
