@@ -1,14 +1,16 @@
 import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_MATRIX_SIZE, SECOND_MS } from "../constants"
 
 import { initializeFieldControls } from "./field"
+import { normalizedRaycasterObjectPosition } from "../three/coordinates"
 
-export function initializeSimulation(root) {
+export function initializeSimulation({ root, raycaster }) {
 	return {
 		root,
+		raycaster,
 		isIterating: false,
 		iteration: 0,
 		matrixSize: DEFAULT_MATRIX_SIZE,
-		field: initializeFieldControls({ matrixSize: DEFAULT_MATRIX_SIZE, root }),
+		field: initializeFieldControls({ root }),
 		toggleIteration() {
 			this.isIterating = !this.isIterating
 		},
@@ -25,6 +27,13 @@ export function initializeSimulation(root) {
 				for (let z = 0; z < this.matrixSize; z++) field.iterate({ x, z })
 			field.applyChanges()
 			field.display()
+		},
+		handleMouseClick() {
+			if (this.isIterating || !this.raycaster.hasIntersectedCell()) {
+				return
+			}
+			const position = normalizedRaycasterObjectPosition({ object: raycaster.getIntersectedCell() })
+			this.field.handlePositionChange({ position })
 		}
 	}
 }

@@ -1,7 +1,6 @@
 import * as THREE from "three"
-import { projectInitialization, fullyTerminateMesh, cloneMesh } from "./three/root"
+import { projectInitialization } from "./three/root"
 import { checkRendererAspect } from "./three/responsive"
-import { aliveCellMesh } from "./three/meshes/cell"
 import { gameGridPlaneMesh } from "./three/meshes/plane"
 import { createGridMesh } from "./three/grid"
 import { normalizedRaycasterObjectPosition } from "./three/coordinates"
@@ -13,8 +12,8 @@ import { initializeRaycaster } from "./three/raycaster"
 const { renderer, scene, camera } = projectInitialization()
 const ROOT = new THREE.Object3D()
 const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
-const simulation = initializeSimulation(ROOT)
 const raycaster = initializeRaycaster({ object: planeMesh, camera })
+const simulation = initializeSimulation({ root: ROOT, raycaster })
 const { field } = simulation
 
 scene.add(ROOT)
@@ -46,24 +45,7 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 	}
 })
 
-window.addEventListener("mousedown", function () {
-	if (simulation.isIterating || !raycaster.hasIntersectedCell()) {
-		return
-	}
-	const position = normalizedRaycasterObjectPosition({ object: raycaster.getIntersectedCell() })
-	const mesh = field.getObject(position)
-
-	if (mesh) {
-		fullyTerminateMesh(ROOT, mesh)
-		field.kill(position)
-		field.removeObject(position)
-	} else {
-		const aliveCell = cloneMesh(aliveCellMesh, position)
-		field.revive(position)
-		field.saveObject(aliveCell)
-		ROOT.add(aliveCell)
-	}
-})
+window.addEventListener("mousedown", () => simulation.handleMouseClick())
 
 function animate(time) {
 	if (simulation.isIterating) {

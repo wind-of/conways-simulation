@@ -46,6 +46,7 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 	let changes = []
 
 	return {
+		root,
 		matrix,
 		objects,
 
@@ -84,12 +85,27 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 			const key = positionToKey(mesh.position)
 			objects[key] = mesh
 		},
-		getObject(position) {
+		getObjectAtPosition({ position }) {
 			return objects[positionToKey(position)]
 		},
 		removeObject(position) {
 			objects[positionToKey(position)] = null
 		},
+		handlePositionChange({ position }) {
+			const mesh = this.getObjectAtPosition({ position })
+
+			if (mesh) {
+				fullyTerminateMesh(root, mesh)
+				this.kill(position)
+				this.removeObject(position)
+			} else {
+				const aliveCell = cloneMesh(aliveCellMesh, position)
+				this.revive(position)
+				this.saveObject(aliveCell)
+				this.root.add(aliveCell)
+			}
+		},
+
 		applyChanges() {
 			changes.forEach(({ value, position: { x, z } }) => set(x, z, value))
 			changes = []
@@ -107,7 +123,7 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 			for (let x = 0; x < matrixSize; x++)
 				for (let z = 0; z < matrixSize; z++) {
 					const position = reverseNormilizeCoordinates({ x, z }, matrixSize)
-					const mesh = this.getObject(position)
+					const mesh = this.getObjectAtPosition({ position })
 					if (matrix[x][z] === ALIVE_CELL_VALUE) {
 						if (mesh) {
 							continue
