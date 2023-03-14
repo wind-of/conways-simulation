@@ -14,6 +14,9 @@ export function initializeRaycaster({ object, camera }) {
 		},
 		getIntersectedCell() {
 			return this.intersectedCell
+		},
+		hasIntersectedCell() {
+			return !!this.intersectedCell
 		}
 	}
 }

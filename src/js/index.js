@@ -47,11 +47,12 @@ window.addEventListener("mousemove", ({ clientX, clientY }) => {
 })
 
 window.addEventListener("mousedown", function () {
-	const position = normalizedRaycasterObjectPosition({ object: raycaster.getIntersectedCell() })
-	const mesh = field.getObject(position)
-	if (simulation.isIterating) {
+	if (simulation.isIterating || !raycaster.hasIntersectedCell()) {
 		return
 	}
+	const position = normalizedRaycasterObjectPosition({ object: raycaster.getIntersectedCell() })
+	const mesh = field.getObject(position)
+
 	if (mesh) {
 		fullyTerminateMesh(ROOT, mesh)
 		field.kill(position)
