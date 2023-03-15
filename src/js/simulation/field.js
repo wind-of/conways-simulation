@@ -1,4 +1,4 @@
-import { reverseNormilizeCoordinates, normilizeIndex, positionToKey } from "../three/coordinates"
+import { reverseNormilizeCoordinates, normilizeIndex, positionToString } from "../three/coordinates"
 import { fullyTerminateMesh, cloneMesh } from "../three/root"
 
 import {
@@ -88,14 +88,14 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 		isAlive,
 
 		saveObject(mesh) {
-			const key = positionToKey(mesh.position)
+			const key = positionToString(mesh.position)
 			objects[key] = mesh
 		},
 		getObjectAtPosition({ position }) {
-			return objects[positionToKey(position)]
+			return objects[positionToString(position)]
 		},
 		removeObject(position) {
-			objects[positionToKey(position)] = null
+			objects[positionToString(position)] = null
 		},
 		handleCellChange({ position }) {
 			return this.getObjectAtPosition({ position })
@@ -107,8 +107,8 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 			changes.forEach(({ value, position: { x, z } }) => set(x, z, value))
 			changes = []
 		},
-		iterate(coordinates) {
-			const position = reverseNormilizeCoordinates(coordinates, matrixSize)
+		iterate(position_) {
+			const position = reverseNormilizeCoordinates({ position: position_, max: matrixSize })
 			const isCellAlive = isAlive(position)
 			if (willBeAlive(position)) {
 				return !isCellAlive && changes.push({ position, value: ALIVE_CELL_VALUE })
@@ -138,7 +138,7 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 		display() {
 			for (let x = 0; x < matrixSize; x++)
 				for (let z = 0; z < matrixSize; z++) {
-					const position = reverseNormilizeCoordinates({ x, z }, matrixSize)
+					const position = reverseNormilizeCoordinates({ position: { x, z }, max: matrixSize })
 					matrix[x][z] === ALIVE_CELL_VALUE
 						? this.reviveCell({ position })
 						: this.terminateCell({ position })
