@@ -1,4 +1,9 @@
-import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_MATRIX_SIZE, SECOND_MS } from "../constants"
+import {
+	DEFAULT_ITERATION_PER_SECOND,
+	DEFAULT_MATRIX_SIZE,
+	SECOND_MS,
+	SPACE_KEY
+} from "../constants"
 
 import { initializeFieldControls } from "./field"
 import { normalizedRaycasterObjectPosition } from "../three/coordinates"
@@ -12,18 +17,28 @@ export function initializeSimulation({
 	return {
 		root,
 		raycaster,
+		isHoldingMouse: false,
 		isIterating: false,
 		iteration: 0,
+		time: 0,
 		matrixSize: matrix.length,
 		field: initializeFieldControls({ root, matrix }),
 		toggleIteration() {
 			this.isIterating = !this.isIterating
 		},
-		shouldIterateAtTime({ time }) {
-			return this.iteration < ((time / (SECOND_MS / DEFAULT_ITERATION_PER_SECOND)) | 0)
+		shouldIterateAtTime() {
+			return this.iteration < ((this.time / (SECOND_MS / DEFAULT_ITERATION_PER_SECOND)) | 0)
 		},
-		iterate({ time }) {
-			if (!this.shouldIterateAtTime({ time })) {
+		tick({ time }) {
+			this.time = time
+			if (this.isIterating) {
+				this.iterate()
+			} else {
+				this.field.animateHint({ time })
+			}
+		},
+		iterate() {
+			if (!this.shouldIterateAtTime()) {
 				return
 			}
 			this.iteration++
@@ -33,12 +48,45 @@ export function initializeSimulation({
 			field.applyChanges()
 			field.display()
 		},
-		handleMouseClick() {
+		handleKeydown({ key }) {
+			if (key === SPACE_KEY) {
+				this.toggleIteration()
+				this.field.setHintVisibility(!this.isIterating)
+			}
+		},
+		handleMouseDown() {
 			if (this.isIterating || !this.raycaster.hasIntersectedCell()) {
 				return
 			}
+			this.isHoldingMouse = true
 			const position = normalizedRaycasterObjectPosition({ object: raycaster.getIntersectedCell() })
-			this.field.handlePositionChange({ position })
+			this.field.handleCellChange({ position })
+		},
+		handleMouseUp() {
+			this.isHoldingMouse = false
+		},
+		handleMouseMove({ clientX, clientY }) {
+			this.raycaster.setMousePosition({ x: clientX, y: clientY })
+			const intersectedCell = raycaster.getIntersectedCell()
+			if (!intersectedCell || this.isIterating) {
+				this.field.setHintVisibility(false)
+				return
+			}
+
+			this.field.setHintsDefaultState()
+			const targetPosition = normalizedRaycasterObjectPosition({ object: intersectedCell })
+			const isTargetAlive = this.field.isAlive(targetPosition)
+
+			if (this.isHoldingMouse) {
+				if (!isTargetAlive) {
+					this.field.reviveCell({ position: targetPosition })
+				}
+			} else {
+				this.field.setHintPosition(targetPosition)
+				if (isTargetAlive) {
+					this.field.setHintsTerminationState()
+				}
+			}
 		}
 	}
 }

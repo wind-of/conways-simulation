@@ -26,8 +26,8 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 	}
 	const set = (x, z, v) => (matrix[index(x)][index(z)] = v)
 	const get = (x, z) => {
-		;(x = mirroredIndex({ d: index(x), max: matrixSize })),
-			(z = mirroredIndex({ d: index(z), max: matrixSize }))
+		x = mirroredIndex({ d: index(x), max: matrixSize })
+		z = mirroredIndex({ d: index(z), max: matrixSize })
 
 		return (matrix[x] && matrix[x][z]) || NO_CELL_VALUE
 	}
@@ -36,7 +36,7 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 	const kill = ({ x, z }) => set(x, z, DEAD_CELL_VALUE)
 	const isAlive = ({ x, z }) => !!get(x, z)
 
-	const shouldBeAlive = ({ x, z }) => {
+	const willBeAlive = ({ x, z }) => {
 		const isCellAlive = isAlive({ x, z })
 		const count =
 			get(x - 1, z - 1) +
@@ -97,19 +97,10 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 		removeObject(position) {
 			objects[positionToKey(position)] = null
 		},
-		handlePositionChange({ position }) {
-			const mesh = this.getObjectAtPosition({ position })
-
-			if (mesh) {
-				fullyTerminateMesh(root, mesh)
-				this.kill(position)
-				this.removeObject(position)
-			} else {
-				const aliveCell = cloneMesh(aliveCellMesh, position)
-				this.revive(position)
-				this.saveObject(aliveCell)
-				this.root.add(aliveCell)
-			}
+		handleCellChange({ position }) {
+			return this.getObjectAtPosition({ position })
+				? this.terminateCell({ position })
+				: this.reviveCell({ position })
 		},
 
 		applyChanges() {
@@ -119,28 +110,38 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 		iterate(coordinates) {
 			const position = reverseNormilizeCoordinates(coordinates, matrixSize)
 			const isCellAlive = isAlive(position)
-			if (shouldBeAlive(position)) {
+			if (willBeAlive(position)) {
 				return !isCellAlive && changes.push({ position, value: ALIVE_CELL_VALUE })
 			} else {
 				return isCellAlive && changes.push({ position, value: DEAD_CELL_VALUE })
 			}
 		},
+		reviveCell({ position }) {
+			const mesh = this.getObjectAtPosition({ position })
+			if (mesh) {
+				return
+			}
+			const aliveCell = cloneMesh(aliveCellMesh, position)
+			this.saveObject(aliveCell)
+			this.revive(position)
+			this.root.add(aliveCell)
+		},
+		terminateCell({ position }) {
+			const mesh = this.getObjectAtPosition({ position })
+			if (!mesh) {
+				return
+			}
+			fullyTerminateMesh(root, mesh)
+			this.removeObject(position)
+			this.kill(position)
+		},
 		display() {
 			for (let x = 0; x < matrixSize; x++)
 				for (let z = 0; z < matrixSize; z++) {
 					const position = reverseNormilizeCoordinates({ x, z }, matrixSize)
-					const mesh = this.getObjectAtPosition({ position })
-					if (matrix[x][z] === ALIVE_CELL_VALUE) {
-						if (mesh) {
-							continue
-						}
-						const aliveCell = cloneMesh(aliveCellMesh, position)
-						this.saveObject(aliveCell)
-						root.add(aliveCell)
-					} else if (mesh) {
-						this.removeObject(position)
-						fullyTerminateMesh(root, mesh)
-					}
+					matrix[x][z] === ALIVE_CELL_VALUE
+						? this.reviveCell({ position })
+						: this.terminateCell({ position })
 				}
 		}
 	}

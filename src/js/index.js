@@ -3,9 +3,8 @@ import { projectInitialization } from "./three/root"
 import { checkRendererAspect } from "./three/responsive"
 import { gameGridPlaneMesh } from "./three/meshes/plane"
 import { createGridMesh } from "./three/grid"
-import { normalizedRaycasterObjectPosition } from "./three/coordinates"
 
-import { DEFAULT_MATRIX_SIZE, SPACE_KEY } from "./constants"
+import { DEFAULT_MATRIX_SIZE } from "./constants"
 import { initializeSimulation } from "./simulation"
 import { initializeRaycaster } from "./three/raycaster"
 
@@ -20,40 +19,13 @@ scene.add(ROOT)
 ROOT.add(planeMesh, ...createGridMesh(planeMesh))
 field.display()
 
-window.addEventListener("keydown", ({ key }) => {
-	if (key === SPACE_KEY) {
-		simulation.toggleIteration()
-		field.setHintVisibility(!simulation.isIterating)
-	}
-})
-
-window.addEventListener("mousemove", ({ clientX, clientY }) => {
-	raycaster.setMousePosition({ x: clientX, y: clientY })
-	const intersectedCell = raycaster.getIntersectedCell()
-	if (!intersectedCell || simulation.isIterating) {
-		field.setHintVisibility(false)
-		return
-	}
-	field.setHintsDefaultState()
-
-	const targetPosition = normalizedRaycasterObjectPosition({ object: intersectedCell })
-	const isTargetAlive = field.isAlive(targetPosition)
-	field.setHintPosition(targetPosition)
-
-	if (isTargetAlive) {
-		field.setHintsTerminationState()
-	}
-})
-
-window.addEventListener("mousedown", () => simulation.handleMouseClick())
+window.addEventListener("keydown", (event) => simulation.handleKeydown(event))
+window.addEventListener("mousemove", (event) => simulation.handleMouseMove(event))
+window.addEventListener("mousedown", () => simulation.handleMouseDown())
+window.addEventListener("mouseup", () => simulation.handleMouseUp())
 
 function animate(time) {
-	if (simulation.isIterating) {
-		simulation.iterate({ time })
-	} else {
-		field.animateHint({ time })
-	}
-
+	simulation.tick({ time })
 	checkRendererAspect(renderer, camera)
 	renderer.render(scene, camera)
 }
