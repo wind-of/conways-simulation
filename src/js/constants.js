@@ -15,4 +15,4 @@ export const SPACE_KEY = " "
 
 export const DEFAULT_FOV = 60
 export const DEFAULT_NEAR = 0.1
-export const DEFAULT_FAR = 1000
+export const DEFAULT_FAR = 10000
