@@ -10,12 +10,9 @@ import {
 } from "../constants"
 import { createAliveCellMesh, aliveCellMesh } from "../three/meshes/cell"
 import { hintOpacityAnimation, hintTerminationOpacityAnimation } from "../three/animation"
-import { zeroMatrix } from "../utils"
 import { COLOR_BLUE, COLOR_WHITE } from "../three/colors"
 
 export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SIZE, root }) {
-	matrix = matrix || zeroMatrix(matrixSize)
-
 	const objects = {}
 
 	const hintMesh = createAliveCellMesh()
@@ -23,8 +20,17 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 	root.add(hintMesh)
 
 	const index = (d) => normilizeIndex(d, matrixSize)
+	const mirroredIndex = ({ d, max }) => {
+		const offset = d < 0 ? max : d >= max ? -max : 0
+		return d + offset
+	}
 	const set = (x, z, v) => (matrix[index(x)][index(z)] = v)
-	const get = (x, z) => (matrix[index(x)] && matrix[index(x)][index(z)]) || NO_CELL_VALUE
+	const get = (x, z) => {
+		;(x = mirroredIndex({ d: index(x), max: matrixSize })),
+			(z = mirroredIndex({ d: index(z), max: matrixSize }))
+
+		return (matrix[x] && matrix[x][z]) || NO_CELL_VALUE
+	}
 
 	const revive = ({ x, z }) => set(x, z, ALIVE_CELL_VALUE)
 	const kill = ({ x, z }) => set(x, z, DEAD_CELL_VALUE)

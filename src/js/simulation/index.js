@@ -2,15 +2,20 @@ import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_MATRIX_SIZE, SECOND_MS } from "..
 
 import { initializeFieldControls } from "./field"
 import { normalizedRaycasterObjectPosition } from "../three/coordinates"
+import { zeroMatrix } from "../utils"
 
-export function initializeSimulation({ root, raycaster }) {
+export function initializeSimulation({
+	root,
+	raycaster,
+	matrix = zeroMatrix(DEFAULT_MATRIX_SIZE)
+}) {
 	return {
 		root,
 		raycaster,
 		isIterating: false,
 		iteration: 0,
-		matrixSize: DEFAULT_MATRIX_SIZE,
-		field: initializeFieldControls({ root }),
+		matrixSize: matrix.length,
+		field: initializeFieldControls({ root, matrix }),
 		toggleIteration() {
 			this.isIterating = !this.isIterating
 		},
