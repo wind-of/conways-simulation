@@ -2,7 +2,8 @@ import {
 	DEFAULT_ITERATION_PER_SECOND,
 	DEFAULT_MATRIX_SIZE,
 	SECOND_MS,
-	SPACE_KEY
+	SPACE_KEY,
+	MOUSE_LEFT_BUTTON
 } from "../constants"
 
 import { initializeFieldControls } from "./field"
@@ -54,8 +55,12 @@ export function initializeSimulation({
 				this.field.setHintVisibility(!this.isIterating)
 			}
 		},
-		handleMouseDown() {
-			if (this.isIterating || !this.raycaster.hasIntersectedCell()) {
+		handleMouseDown({ button }) {
+			if (
+				this.isIterating ||
+				!this.raycaster.hasIntersectedCell() ||
+				button !== MOUSE_LEFT_BUTTON
+			) {
 				return
 			}
 			this.isHoldingMouse = true

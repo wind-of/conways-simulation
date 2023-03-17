@@ -21,7 +21,7 @@ field.display()
 
 window.addEventListener("keydown", (event) => simulation.handleKeydown(event))
 window.addEventListener("mousemove", (event) => simulation.handleMouseMove(event))
-window.addEventListener("mousedown", () => simulation.handleMouseDown())
+window.addEventListener("mousedown", (event) => simulation.handleMouseDown(event))
 window.addEventListener("mouseup", () => simulation.handleMouseUp())
 
 function animate(time) {
