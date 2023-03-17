@@ -6,31 +6,44 @@ import {
 	MOUSE_LEFT_BUTTON
 } from "../constants"
 
+import * as THREE from "three"
+
 import { initializeFieldControls } from "./field"
 import { normalizedRaycasterObjectPosition } from "../three/coordinates"
 import { zeroMatrix } from "../utils"
+import { gameGridPlaneMesh } from "../three/meshes/plane"
+import { createGridMesh } from "../three/grid"
+import { initializeRaycaster } from "../three/raycaster"
 
 export function initializeSimulation({
-	root,
-	raycaster,
+	camera,
+	root = new THREE.Object3D(),
 	matrix = zeroMatrix(DEFAULT_MATRIX_SIZE)
 }) {
+	const field = initializeFieldControls({ root, matrix })
+	const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
+	const raycaster = initializeRaycaster({ object: planeMesh, camera })
+	root.add(planeMesh, ...createGridMesh(planeMesh))
+	field.display()
 	return {
 		root,
+		field,
+		matrixSize: matrix.length,
 		raycaster,
+
 		isHoldingMouse: false,
 		isRevivingCells: false,
+
 		isIterating: false,
 		iteration: 0,
 		time: 0,
-		matrixSize: matrix.length,
-		field: initializeFieldControls({ root, matrix }),
 		toggleIteration() {
 			this.isIterating = !this.isIterating
 		},
 		shouldIterateAtTime() {
 			return this.iteration < ((this.time / (SECOND_MS / DEFAULT_ITERATION_PER_SECOND)) | 0)
 		},
+
 		tick({ time }) {
 			this.time = time
 			if (this.isIterating) {
@@ -50,6 +63,7 @@ export function initializeSimulation({
 			field.applyChanges()
 			field.display()
 		},
+
 		handleKeydown({ key }) {
 			if (key === SPACE_KEY) {
 				this.toggleIteration()
