@@ -19,6 +19,7 @@ export function initializeSimulation({
 		root,
 		raycaster,
 		isHoldingMouse: false,
+		isRevivingCells: false,
 		isIterating: false,
 		iteration: 0,
 		time: 0,
@@ -63,12 +64,15 @@ export function initializeSimulation({
 			) {
 				return
 			}
-			this.isHoldingMouse = true
 			const position = normalizedRaycasterObjectPosition({ object: raycaster.getIntersectedCell() })
+			const isCellAlive = this.field.isAlive(position)
+			this.isHoldingMouse = true
+			this.isRevivingCells = !isCellAlive
 			this.field.handleCellChange({ position })
 		},
 		handleMouseUp() {
 			this.isHoldingMouse = false
+			this.field.setHintVisibility(true)
 		},
 		handleMouseMove({ clientX, clientY }) {
 			this.raycaster.setMousePosition({ x: clientX, y: clientY })
@@ -79,15 +83,19 @@ export function initializeSimulation({
 			}
 
 			this.field.setHintsDefaultState()
-			const targetPosition = normalizedRaycasterObjectPosition({ object: intersectedCell })
-			const isTargetAlive = this.field.isAlive(targetPosition)
+			const position = normalizedRaycasterObjectPosition({ object: intersectedCell })
+			const isTargetAlive = this.field.isAlive(position)
 
 			if (this.isHoldingMouse) {
-				if (!isTargetAlive) {
-					this.field.reviveCell({ position: targetPosition })
+				this.field.setHintVisibility(false)
+				if (this.isRevivingCells && !isTargetAlive) {
+					this.field.reviveCell({ position })
+				}
+				if (!this.isRevivingCells && isTargetAlive) {
+					this.field.terminateCell({ position })
 				}
 			} else {
-				this.field.setHintPosition(targetPosition)
+				this.field.setHintPosition(position)
 				if (isTargetAlive) {
 					this.field.setHintsTerminationState()
 				}
