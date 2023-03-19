@@ -22,8 +22,9 @@ export function initializeSimulation({
 }) {
 	const field = initializeFieldControls({ root, matrix })
 	const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
-	const raycaster = initializeRaycaster({ object: planeMesh, camera })
-	root.add(planeMesh, ...createGridMesh(planeMesh))
+	const { wireLine, edgesLine } = createGridMesh(planeMesh)
+	const raycaster = initializeRaycaster({ object: wireLine, camera })
+	root.add(wireLine, edgesLine)
 	field.display()
 	return {
 		root,
@@ -49,7 +50,7 @@ export function initializeSimulation({
 			if (this.isIterating) {
 				this.iterate()
 			} else {
-				this.field.animateHint({ time })
+				this.field.animate({ time })
 			}
 		},
 		iterate() {
@@ -67,7 +68,7 @@ export function initializeSimulation({
 		handleKeydown({ key }) {
 			if (key === SPACE_KEY) {
 				this.toggleIteration()
-				this.field.setHintVisibility(!this.isIterating)
+				this.field.hint.setHintVisibility(!this.isIterating)
 			}
 		},
 		handleMouseDown({ button }) {
@@ -86,22 +87,22 @@ export function initializeSimulation({
 		},
 		handleMouseUp() {
 			this.isHoldingMouse = false
-			this.field.setHintVisibility(true)
+			this.field.hint.setHintVisibility(true)
 		},
 		handleMouseMove({ clientX, clientY }) {
 			this.raycaster.setMousePosition({ x: clientX, y: clientY })
 			const intersectedCell = raycaster.getIntersectedCell()
 			if (!intersectedCell || this.isIterating) {
-				this.field.setHintVisibility(false)
+				this.field.hint.setHintVisibility(false)
 				return
 			}
 
-			this.field.setHintsDefaultState()
+			this.field.hint.setHintsDefaultState()
 			const position = normalizedRaycasterObjectPosition({ object: intersectedCell })
 			const isTargetAlive = this.field.isAlive(position)
 
 			if (this.isHoldingMouse) {
-				this.field.setHintVisibility(false)
+				this.field.hint.setHintVisibility(false)
 				if (this.isRevivingCells && !isTargetAlive) {
 					this.field.reviveCell({ position })
 				}
@@ -109,9 +110,9 @@ export function initializeSimulation({
 					this.field.terminateCell({ position })
 				}
 			} else {
-				this.field.setHintPosition(position)
+				this.field.hint.setHintPosition(position)
 				if (isTargetAlive) {
-					this.field.setHintsTerminationState()
+					this.field.hint.setHintsTerminationState()
 				}
 			}
 		}

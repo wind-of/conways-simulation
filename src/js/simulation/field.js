@@ -1,23 +1,14 @@
 import { reverseNormilizeCoordinates, normilizeIndex, positionToString } from "../three/coordinates"
 import { fullyTerminateMesh, cloneMesh } from "../three/root"
 
-import {
-	ALIVE_CELL_VALUE,
-	DEAD_CELL_VALUE,
-	DEFAULT_Y_POSITION,
-	NO_CELL_VALUE,
-	DEFAULT_MATRIX_SIZE
-} from "../constants"
-import { createAliveCellMesh, aliveCellMesh } from "../three/meshes/cell"
-import { hintOpacityAnimation, hintTerminationOpacityAnimation } from "../three/animation"
-import { COLOR_BLUE, COLOR_WHITE } from "../three/colors"
+import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE, NO_CELL_VALUE, DEFAULT_MATRIX_SIZE } from "../constants"
+import { aliveCellMesh } from "../three/meshes/cell"
+import { initializeHint } from "./hint"
 
 export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SIZE, root }) {
 	const objects = {}
-
-	const hintMesh = createAliveCellMesh()
-	hintMesh.material.visible = false
-	root.add(hintMesh)
+	const hint = initializeHint()
+	root.add(hint.mesh)
 
 	const index = (d) => normilizeIndex(d, matrixSize)
 	const mirroredIndex = ({ d, max }) => {
@@ -56,31 +47,9 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 		matrix,
 		objects,
 
-		hintMesh,
-		hintAnimationFunction: hintOpacityAnimation,
-		setHintVisibility(value) {
-			this.hintMesh.material.visible = value
-		},
-		setHintPosition({ x, z }) {
-			this.hintMesh.position.set(x, DEFAULT_Y_POSITION + 0.008, z)
-		},
-		setHintsDefaultState() {
-			this.hintAnimationFunction = hintOpacityAnimation
-			this.hintMesh.material.color = COLOR_WHITE
-			this.setHintVisibility(true)
-		},
-		setHintsTerminationState() {
-			this.hintAnimationFunction = hintTerminationOpacityAnimation
-			this.hintMesh.material.color = COLOR_BLUE
-		},
-		isHintVisible() {
-			return this.hintMesh.visible
-		},
-		animateHint({ time }) {
-			if (!this.isHintVisible()) {
-				return
-			}
-			this.hintMesh.material.opacity = this.hintAnimationFunction(time)
+		hint,
+		animate({ time }) {
+			this.hint.animate({ time })
 		},
 
 		revive,
