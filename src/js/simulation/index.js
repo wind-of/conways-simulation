@@ -3,7 +3,8 @@ import {
 	DEFAULT_MATRIX_SIZE,
 	SECOND_MS,
 	SPACE_KEY,
-	MOUSE_LEFT_BUTTON
+	MOUSE_LEFT_BUTTON,
+	DEFAULT_ITERATION_PER_TIME
 } from "../constants"
 
 import * as THREE from "three"
@@ -15,9 +16,7 @@ import { gameGridPlaneMesh } from "../three/meshes/plane"
 import { createGridMesh } from "../three/grid"
 import { initializeRaycaster } from "../three/raycaster"
 
-// TODO: если нет изменений, не пытаться перерисовывать
 // TODO: поиск начинать с ближайшей клетки, у которой есть соседи
-// TODO: несколько "итераций" за раз
 
 export function initializeSimulation({
 	camera,
@@ -66,9 +65,11 @@ export function initializeSimulation({
 			}
 			this.iteration++
 			const field = this.field
-			for (let x = 0; x < this.matrixSize; x++)
-				for (let z = 0; z < this.matrixSize; z++) field.iterate({ x, z })
-			field.applyChanges()
+			for (let k = 0; k < DEFAULT_ITERATION_PER_TIME; k++) {
+				for (let x = 0; x < this.matrixSize; x++)
+					for (let z = 0; z < this.matrixSize; z++) field.iterate({ x, z })
+				field.applyChanges()
+			}
 			field.display()
 		},
 
