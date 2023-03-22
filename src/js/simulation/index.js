@@ -16,8 +16,6 @@ import { gameGridPlaneMesh } from "../three/meshes/plane"
 import { createGridMesh } from "../three/grid"
 import { initializeRaycaster } from "../three/raycaster"
 
-// TODO: поиск начинать с ближайшей клетки, у которой есть соседи
-
 export function initializeSimulation({
 	camera,
 	root = new THREE.Object3D(),
