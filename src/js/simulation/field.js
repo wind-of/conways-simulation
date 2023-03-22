@@ -1,10 +1,17 @@
-import { reverseNormilizeCoordinates, normilizeIndex, positionToString } from "../three/coordinates"
+import {
+	reverseNormilizeCoordinates,
+	normilizeIndex,
+	positionToString,
+	normilizeCoordinates
+} from "../three/coordinates"
 import { fullyTerminateMesh, cloneMesh } from "../three/root"
 
 import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE, NO_CELL_VALUE } from "../constants"
 import { aliveCellMesh } from "../three/meshes/cell"
 import { initializeHint } from "./hint"
 import { DOT, templates } from "../life-rules/templates"
+
+// TODO: terminationState для инверсии живых клеток по шаблону
 
 export function initializeFieldControls({
 	matrix,
@@ -13,7 +20,9 @@ export function initializeFieldControls({
 	shouldInitializeHint = true
 }) {
 	const objects = {}
-	const hint = shouldInitializeHint ? initializeHint({ template: templates[DOT] }) : null
+	const hint = shouldInitializeHint
+		? initializeHint({ globalRoot: root, template: templates[DOT] })
+		: null
 	if (hint) {
 		root.add(hint.root)
 	}
@@ -76,10 +85,32 @@ export function initializeFieldControls({
 		removeObject(position) {
 			objects[positionToString(position)] = null
 		},
+		applyHintTemplateToField({ center }) {
+			const { templateMatrix } = this.hint
+			const normalizedCenter = normilizeCoordinates({ position: center, max: matrixSize })
+			const rowsCount = templateMatrix.length
+			const columnsCount = templateMatrix[0].length
+			const startX = normalizedCenter.x - Math.floor(columnsCount / 2)
+			const startZ = normalizedCenter.z - Math.floor(rowsCount / 2)
+
+			for (let x = 0; x < columnsCount; x++)
+				for (let z = 0; z < rowsCount; z++) {
+					const fieldPosition = reverseNormilizeCoordinates({
+						position: { x: x + startX, z: z + startZ },
+						max: matrixSize
+					})
+					const isCellAlive = isAlive(fieldPosition)
+					if (templateMatrix[x][z]) {
+						!isCellAlive && changes.push({ position: fieldPosition, value: ALIVE_CELL_VALUE })
+					} else {
+						isCellAlive && changes.push({ position: fieldPosition, value: DEAD_CELL_VALUE })
+					}
+				}
+			this.applyChanges()
+			this.display()
+		},
 		handleCellChange({ position }) {
-			return this.getObjectAtPosition({ position })
-				? this.terminateCell({ position })
-				: this.reviveCell({ position })
+			this.applyHintTemplateToField({ center: position })
 		},
 
 		applyChanges() {
@@ -90,9 +121,9 @@ export function initializeFieldControls({
 			const position = reverseNormilizeCoordinates({ position: position_, max: matrixSize })
 			const isCellAlive = isAlive(position)
 			if (willBeAlive(position)) {
-				return !isCellAlive && changes.push({ position, value: ALIVE_CELL_VALUE })
+				!isCellAlive && changes.push({ position, value: ALIVE_CELL_VALUE })
 			} else {
-				return isCellAlive && changes.push({ position, value: DEAD_CELL_VALUE })
+				isCellAlive && changes.push({ position, value: DEAD_CELL_VALUE })
 			}
 		},
 		reviveCell({ position }) {

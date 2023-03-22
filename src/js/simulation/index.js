@@ -6,14 +6,12 @@ import {
 	MOUSE_LEFT_BUTTON
 } from "../constants"
 
-import { lifeRulesParser } from "../life-rules"
-
 import * as THREE from "three"
 
 import { initializeFieldControls } from "./field"
 import { normalizedRaycasterObjectPosition } from "../three/coordinates"
 import { zeroMatrix } from "../utils"
-import { gameGridPlaneMesh, horizontalPlaneMesh } from "../three/meshes/plane"
+import { gameGridPlaneMesh } from "../three/meshes/plane"
 import { createGridMesh } from "../three/grid"
 import { initializeRaycaster } from "../three/raycaster"
 
@@ -74,28 +72,7 @@ export function initializeSimulation({
 		},
 
 		handleHintTemplateChange({ template }) {
-			const templateHintRoot = new THREE.Object3D()
-			const templateGrid = horizontalPlaneMesh({
-				height: template.height,
-				width: template.width,
-				material: {
-					side: THREE.DoubleSide,
-					color: 0x555555
-				}
-			})
-			templateGrid.position.setY(-0.008)
-
-			templateHintRoot.add(templateGrid)
-			const templateMatrix = lifeRulesParser(template)
-			const templateHintField = initializeFieldControls({
-				root: templateHintRoot,
-				matrix: templateMatrix,
-				matrixSize: template.rows
-			})
-			templateHintField.display()
-			this.field.hint.root.removeFromParent()
-			this.field.hint.root = templateHintRoot
-			this.root.add(templateHintRoot)
+			this.field.hint.setHintTemplate({ template })
 		},
 
 		handleKeydown({ key }) {
@@ -137,16 +114,10 @@ export function initializeSimulation({
 			if (this.isHoldingMouse) {
 				this.field.hint.setHintVisibility(false)
 				if (this.isRevivingCells && !isTargetAlive) {
-					this.field.reviveCell({ position })
-				}
-				if (!this.isRevivingCells && isTargetAlive) {
-					this.field.terminateCell({ position })
+					this.field.handleCellChange({ position })
 				}
 			} else {
 				this.field.hint.setHintPosition(position)
-				if (isTargetAlive) {
-					this.field.hint.setHintsTerminationState()
-				}
 			}
 		}
 	}

@@ -25,11 +25,11 @@ export function gameGridPlaneMesh({ size, height, width }) {
 	})
 }
 
-export function templateGridPlaneMesh({ height, width, color = 0x777777 }) {
+export function templateGridPlaneMesh({ height, width, color = 0x444444 }) {
 	return horizontalPlaneMesh({
 		height,
+		width,
 		material: {
-			width,
 			side: THREE.DoubleSide,
 			color
 		}
