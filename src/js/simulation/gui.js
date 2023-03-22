@@ -2,7 +2,7 @@
 import GUI from "lil-gui"
 import { INVERSION_STATE, REVIVAL_STATE, TERMINATION_STATE, EMPTY_FUNCTION } from "../constants"
 
-import { templates } from "../life-rules/templates"
+import { templates } from "../life/templates"
 
 EMPTY_FUNCTION
 

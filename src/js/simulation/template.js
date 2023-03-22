@@ -1,6 +1,6 @@
 import * as THREE from "three"
 import { templateGridPlaneMesh } from "../three/meshes/plane"
-import { lifeRulesParser } from "../life-rules"
+import { lifeRulesParser } from "../life"
 import { initializeFieldControls } from "./field"
 
 export function initializeFieldFromTemplate({ template }) {

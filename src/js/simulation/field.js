@@ -16,7 +16,7 @@ import {
 } from "../constants"
 import { aliveCellMesh } from "../three/meshes/cell"
 import { initializeHint } from "./hint"
-import { DOT, templates } from "../life-rules/templates"
+import { DOT, templates } from "../life/templates"
 
 export function initializeFieldControls({
 	matrix,
