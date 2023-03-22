@@ -74,6 +74,9 @@ export function initializeSimulation({
 		handleHintTemplateChange({ template }) {
 			this.field.hint.setHintTemplate({ template })
 		},
+		handleStateChange({ state }) {
+			state
+		},
 
 		handleKeydown({ key }) {
 			if (key === SPACE_KEY) {

@@ -8,7 +8,8 @@ const simulation = initializeSimulation({ camera })
 scene.add(simulation.root)
 
 initializeGUI({
-	templateChangeHandler: simulation.handleHintTemplateChange.bind(simulation)
+	templateChangeHandler: simulation.handleHintTemplateChange.bind(simulation),
+	stateChangeHandler: simulation.handleStateChange.bind(simulation)
 })
 
 window.addEventListener("keydown", (event) => simulation.handleKeydown(event))
