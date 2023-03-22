@@ -77,6 +77,7 @@ export function initializeFieldControls({
 					this.terminateCell({
 						position: reverseNormilizeCoordinates({ position: { x, z }, max: matrixSize })
 					})
+			this.hint.setHintVisibility(false)
 		},
 
 		hint,
@@ -154,8 +155,6 @@ export function initializeFieldControls({
 		},
 		terminateCell({ position }) {
 			const mesh = this.getObjectAtPosition({ position })
-			// console.log(position.x, position.z)
-			// console.log("terminationg; position: ", position, `stringifiedPosition ${positionToString(position)}`, "objects: ", this.objects, )
 			if (!mesh) {
 				return
 			}
