@@ -24,7 +24,6 @@ export function initializeFieldControls({
 	root,
 	shouldInitializeHint = true
 }) {
-	const objects = {}
 	const hint = shouldInitializeHint
 		? initializeHint({ globalRoot: root, template: templates[DOT] })
 		: null
@@ -67,10 +66,17 @@ export function initializeFieldControls({
 	return {
 		root,
 		matrix,
-		objects,
+		objects: {},
 		state: REVIVAL_STATE,
 		setState({ state }) {
 			this.state = state
+		},
+		clear() {
+			for (let x = 0; x < matrixSize; x++)
+				for (let z = 0; z < matrixSize; z++)
+					this.terminateCell({
+						position: reverseNormilizeCoordinates({ position: { x, z }, max: matrixSize })
+					})
 		},
 
 		hint,
@@ -81,14 +87,13 @@ export function initializeFieldControls({
 		},
 		isAlive,
 		saveObject(mesh) {
-			const key = positionToString(mesh.position)
-			objects[key] = mesh
+			this.objects[positionToString(mesh.position)] = mesh
 		},
 		getObjectAtPosition({ position }) {
-			return objects[positionToString(position)]
+			return this.objects[positionToString(position)]
 		},
 		removeObject(position) {
-			objects[positionToString(position)] = null
+			this.objects[positionToString(position)] = null
 		},
 		applyHintTemplateToField({ center }) {
 			const { templateMatrix } = this.hint
@@ -149,6 +154,8 @@ export function initializeFieldControls({
 		},
 		terminateCell({ position }) {
 			const mesh = this.getObjectAtPosition({ position })
+			// console.log(position.x, position.z)
+			// console.log("terminationg; position: ", position, `stringifiedPosition ${positionToString(position)}`, "objects: ", this.objects, )
 			if (!mesh) {
 				return
 			}

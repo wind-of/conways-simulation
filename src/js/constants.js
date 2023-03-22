@@ -23,3 +23,5 @@ export const MOUSE_LEFT_BUTTON = 0
 export const INVERSION_STATE = "INVERSION_STATE"
 export const REVIVAL_STATE = "REVIVAL_STATE"
 export const TERMINATION_STATE = "TERMINATION_STATE"
+
+export const EMPTY_FUNCTION = () => {}

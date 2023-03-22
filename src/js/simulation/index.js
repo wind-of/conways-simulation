@@ -51,6 +51,9 @@ export function initializeSimulation({
 			return this.iteration < ((this.time / (SECOND_MS / DEFAULT_ITERATION_PER_SECOND)) | 0)
 		},
 
+		clearField() {
+			this.field.clear()
+		},
 		tick({ time }) {
 			this.time = time
 			if (this.isIterating) {
@@ -95,10 +98,8 @@ export function initializeSimulation({
 				return
 			}
 			const position = normalizedRaycasterObjectPosition({ object: raycaster.getIntersectedCell() })
-			const isCellAlive = this.field.isAlive(position)
-			this.isHoldingMouse = true
-			this.isRevivingCells = !isCellAlive
 			this.field.handleCellChange({ position })
+			this.isHoldingMouse = true
 		},
 		handleMouseUp() {
 			this.isHoldingMouse = false
@@ -122,7 +123,6 @@ export function initializeSimulation({
 			this.field.hint.setHintPosition(position)
 
 			if (this.isHoldingMouse) {
-				this.field.hint.setHintVisibility(false)
 				this.field.handleCellChange({ position })
 			}
 		}

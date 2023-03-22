@@ -1,12 +1,25 @@
 // eslint-disable-next-line import/no-named-as-default
 import GUI from "lil-gui"
-import { INVERSION_STATE, REVIVAL_STATE, TERMINATION_STATE } from "../constants"
+import { INVERSION_STATE, REVIVAL_STATE, TERMINATION_STATE, EMPTY_FUNCTION } from "../constants"
 
 import { templates } from "../life-rules/templates"
 
-export function initializeGUI({ stateChangeHandler = () => {}, templateChangeHandler = () => {} }) {
-	const gui = new GUI()
+EMPTY_FUNCTION
 
+export function initializeGUI({
+	handleFieldClear = EMPTY_FUNCTION,
+	stateChangeHandler = EMPTY_FUNCTION,
+	templateChangeHandler = EMPTY_FUNCTION
+}) {
+	const gui = new GUI()
+	const generalFolder = gui.addFolder("Общее")
+	const settings = {
+		"Очистить поле": () => handleFieldClear()
+	}
+	// ОЧИСТКА
+	generalFolder.add(settings, "Очистить поле")
+
+	// ШАБЛОНЫ
 	const templateButtonHandler =
 		({ template }) =>
 		() =>
@@ -19,6 +32,7 @@ export function initializeGUI({ stateChangeHandler = () => {}, templateChangeHan
 	)
 	templates_.forEach(({ guiName }) => templatesFolder.add(templatesOptions, guiName))
 
+	// РЕЖИМЫ
 	const statesFolder = gui.addFolder("Режимы")
 	statesFolder.close()
 	const insertStates = {
