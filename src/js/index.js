@@ -6,7 +6,10 @@ import { initializeGUI } from "./simulation/gui"
 const { renderer, scene, camera } = projectInitialization()
 const simulation = initializeSimulation({ camera })
 scene.add(simulation.root)
-
+// TODO: После очистки почему-то появляется шаблон подсказки
+// TODO: Обработать случай, когда шаблон выходит за рамки поля
+// TODO: Немного поиграться со стилями шаблона
+// TODO: Добавить больше шаблонов
 initializeGUI({
 	templateChangeHandler: simulation.handleHintTemplateChange.bind(simulation),
 	stateChangeHandler: simulation.handleStateChange.bind(simulation),
