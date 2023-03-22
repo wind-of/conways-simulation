@@ -39,7 +39,6 @@ export function initializeSimulation({
 		raycaster,
 
 		isHoldingMouse: false,
-		isRevivingCells: false,
 
 		isIterating: false,
 		iteration: 0,
@@ -75,7 +74,7 @@ export function initializeSimulation({
 			this.field.hint.setHintTemplate({ template })
 		},
 		handleStateChange({ state }) {
-			state
+			this.field.setState({ state })
 		},
 
 		handleKeydown({ key }) {
@@ -112,13 +111,11 @@ export function initializeSimulation({
 
 			this.field.hint.setHintsDefaultState()
 			const position = normalizedRaycasterObjectPosition({ object: intersectedCell })
-			const isTargetAlive = this.field.isAlive(position)
+			// const isTargetAlive = this.field.isAlive(position)
 
 			if (this.isHoldingMouse) {
 				this.field.hint.setHintVisibility(false)
-				if (this.isRevivingCells && !isTargetAlive) {
-					this.field.handleCellChange({ position })
-				}
+				this.field.handleCellChange({ position })
 			} else {
 				this.field.hint.setHintPosition(position)
 			}

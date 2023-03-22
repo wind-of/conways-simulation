@@ -6,12 +6,20 @@ import {
 } from "../three/coordinates"
 import { fullyTerminateMesh, cloneMesh } from "../three/root"
 
-import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE, NO_CELL_VALUE } from "../constants"
+import {
+	ALIVE_CELL_VALUE,
+	DEAD_CELL_VALUE,
+	INVERSION_STATE,
+	NO_CELL_VALUE,
+	REVIVAL_STATE,
+	TERMINATION_STATE
+} from "../constants"
 import { aliveCellMesh } from "../three/meshes/cell"
 import { initializeHint } from "./hint"
 import { DOT, templates } from "../life-rules/templates"
 
 // TODO: terminationState для инверсии живых клеток по шаблону
+// TODO: изменения не происходят, пока intersectedCell не обновится
 
 export function initializeFieldControls({
 	matrix,
@@ -63,6 +71,10 @@ export function initializeFieldControls({
 		root,
 		matrix,
 		objects,
+		state: REVIVAL_STATE,
+		setState({ state }) {
+			this.state = state
+		},
 
 		hint,
 		animate({ time }) {
@@ -70,11 +82,7 @@ export function initializeFieldControls({
 				this.hint.animate({ time })
 			}
 		},
-
-		revive,
-		kill,
 		isAlive,
-
 		saveObject(mesh) {
 			const key = positionToString(mesh.position)
 			objects[key] = mesh
@@ -99,12 +107,22 @@ export function initializeFieldControls({
 						position: { x: x + startX, z: z + startZ },
 						max: matrixSize
 					})
-					const isCellAlive = isAlive(fieldPosition)
-					if (templateMatrix[x][z]) {
-						!isCellAlive && changes.push({ position: fieldPosition, value: ALIVE_CELL_VALUE })
-					} else {
-						isCellAlive && changes.push({ position: fieldPosition, value: DEAD_CELL_VALUE })
+					const stateHandlers = {
+						[REVIVAL_STATE]: () => {
+							const value = templateMatrix[x][z] ? ALIVE_CELL_VALUE : DEAD_CELL_VALUE
+							changes.push({ position: fieldPosition, value })
+						},
+						[TERMINATION_STATE]: () => {
+							if (templateMatrix[x][z]) {
+								changes.push({ position: fieldPosition, value: DEAD_CELL_VALUE })
+							}
+						},
+						[INVERSION_STATE]: () => {
+							const value = templateMatrix[x][z] ? DEAD_CELL_VALUE : ALIVE_CELL_VALUE
+							changes.push({ position: fieldPosition, value })
+						}
 					}
+					stateHandlers[this.state]()
 				}
 			this.applyChanges()
 			this.display()
@@ -119,12 +137,8 @@ export function initializeFieldControls({
 		},
 		iterate(position_) {
 			const position = reverseNormilizeCoordinates({ position: position_, max: matrixSize })
-			const isCellAlive = isAlive(position)
-			if (willBeAlive(position)) {
-				!isCellAlive && changes.push({ position, value: ALIVE_CELL_VALUE })
-			} else {
-				isCellAlive && changes.push({ position, value: DEAD_CELL_VALUE })
-			}
+			const value = willBeAlive(position) ? ALIVE_CELL_VALUE : DEAD_CELL_VALUE
+			changes.push({ position, value })
 		},
 		reviveCell({ position }) {
 			const mesh = this.getObjectAtPosition({ position })
@@ -133,7 +147,7 @@ export function initializeFieldControls({
 			}
 			const aliveCell = cloneMesh(aliveCellMesh, position)
 			this.saveObject(aliveCell)
-			this.revive(position)
+			revive(position)
 			this.root.add(aliveCell)
 		},
 		terminateCell({ position }) {
@@ -143,7 +157,7 @@ export function initializeFieldControls({
 			}
 			fullyTerminateMesh(root, mesh)
 			this.removeObject(position)
-			this.kill(position)
+			kill(position)
 		},
 		display() {
 			for (let x = 0; x < matrixSize; x++)
