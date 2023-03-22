@@ -2,7 +2,7 @@ import * as THREE from "three"
 
 export const positionToString = ({ x, z }) => `x${x};z${z}`
 
-export const normilizeIndex = (d, max) => max / 2 + Math.round(d) - 1
+export const normilizeIndex = (d, max) => Math.ceil(max / 2 + Math.round(d) - 1)
 export const reverseNormilizeIndex = (d, max) => d - max / 2 + 0.5
 export const normilizeCoordinates = ({ x, z }, max) => ({
 	x: normilizeIndex(x, max),

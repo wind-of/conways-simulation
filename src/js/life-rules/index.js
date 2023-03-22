@@ -9,11 +9,11 @@
 */
 const mapCellTypes = { o: 1, b: 0 }
 
-export function parse({ string, rows, columns }) {
-	const matrix = Array.from({ length: rows }, () => Array(columns).fill(0))
+export function lifeRulesParser({ string, height, width }) {
+	const matrix = Array.from({ length: height }, () => Array(width).fill(0))
 	const makeStep = ({ x, y, v }) => {
 		matrix[x][y] = v
-		return (y + 1) % columns
+		return (y + 1) % width
 	}
 	for (let i = 0, x = 0, y = 0; i < string.length; i++) {
 		let char = string[i]

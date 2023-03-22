@@ -18,11 +18,11 @@
   },
   "dependencies": {
     "img": "^3.0.3",
+    "lil-gui": "^0.18.1",
     "three": "^0.133.0"
   },
   "devDependencies": {
     "cssnano": "^5.0.8",
-    "dat.gui": "^0.7.9",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "8.7.0",
     "eslint-plugin-import": "^2.26.0",

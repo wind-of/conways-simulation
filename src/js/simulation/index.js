@@ -6,12 +6,14 @@ import {
 	MOUSE_LEFT_BUTTON
 } from "../constants"
 
+import { lifeRulesParser } from "../life-rules"
+
 import * as THREE from "three"
 
 import { initializeFieldControls } from "./field"
 import { normalizedRaycasterObjectPosition } from "../three/coordinates"
 import { zeroMatrix } from "../utils"
-import { gameGridPlaneMesh } from "../three/meshes/plane"
+import { gameGridPlaneMesh, horizontalPlaneMesh } from "../three/meshes/plane"
 import { createGridMesh } from "../three/grid"
 import { initializeRaycaster } from "../three/raycaster"
 
@@ -20,16 +22,18 @@ export function initializeSimulation({
 	root = new THREE.Object3D(),
 	matrix = zeroMatrix(DEFAULT_MATRIX_SIZE)
 }) {
+	const matrixSize = matrix.length
+
 	const field = initializeFieldControls({ root, matrix })
-	const planeMesh = gameGridPlaneMesh(DEFAULT_MATRIX_SIZE)
+	const planeMesh = gameGridPlaneMesh({ size: matrixSize })
 	const { wireLine, edgesLine } = createGridMesh(planeMesh)
-	const raycaster = initializeRaycaster({ object: wireLine, camera })
-	root.add(wireLine, edgesLine)
+	const raycaster = initializeRaycaster({ object: planeMesh, camera })
+	root.add(planeMesh, wireLine, edgesLine)
 	field.display()
 	return {
 		root,
 		field,
-		matrixSize: matrix.length,
+		matrixSize,
 		raycaster,
 
 		isHoldingMouse: false,
@@ -63,6 +67,31 @@ export function initializeSimulation({
 				for (let z = 0; z < this.matrixSize; z++) field.iterate({ x, z })
 			field.applyChanges()
 			field.display()
+		},
+
+		handleHintTemplateChange({ template }) {
+			const templateHintRoot = new THREE.Object3D()
+			const templateGrid = horizontalPlaneMesh({
+				height: template.height,
+				width: template.width,
+				material: {
+					side: THREE.DoubleSide,
+					color: 0x555555
+				}
+			})
+			templateGrid.position.setY(-0.008)
+
+			templateHintRoot.add(templateGrid)
+			const templateMatrix = lifeRulesParser(template)
+			const templateHintField = initializeFieldControls({
+				root: templateHintRoot,
+				matrix: templateMatrix,
+				matrixSize: template.rows
+			})
+			templateHintField.display()
+			this.field.hint.root.removeFromParent()
+			this.field.hint.root = templateHintRoot
+			this.root.add(templateHintRoot)
 		},
 
 		handleKeydown({ key }) {

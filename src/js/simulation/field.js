@@ -1,14 +1,22 @@
 import { reverseNormilizeCoordinates, normilizeIndex, positionToString } from "../three/coordinates"
 import { fullyTerminateMesh, cloneMesh } from "../three/root"
 
-import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE, NO_CELL_VALUE, DEFAULT_MATRIX_SIZE } from "../constants"
+import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE, NO_CELL_VALUE } from "../constants"
 import { aliveCellMesh } from "../three/meshes/cell"
 import { initializeHint } from "./hint"
+import { DOT, templates } from "../life-rules/templates"
 
-export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SIZE, root }) {
+export function initializeFieldControls({
+	matrix,
+	matrixSize = matrix.length,
+	root,
+	shouldInitializeHint = true
+}) {
 	const objects = {}
-	const hint = initializeHint()
-	root.add(hint.mesh)
+	const hint = shouldInitializeHint ? initializeHint({ template: templates[DOT] }) : null
+	if (hint) {
+		root.add(hint.root)
+	}
 
 	const index = (d) => normilizeIndex(d, matrixSize)
 	const mirroredIndex = ({ d, max }) => {
@@ -49,7 +57,9 @@ export function initializeFieldControls({ matrix, matrixSize = DEFAULT_MATRIX_SI
 
 		hint,
 		animate({ time }) {
-			this.hint.animate({ time })
+			if (this.hint) {
+				this.hint.animate({ time })
+			}
 		},
 
 		revive,

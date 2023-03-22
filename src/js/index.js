@@ -1,11 +1,15 @@
 import { projectInitialization } from "./three/root"
 import { checkRendererAspect } from "./three/responsive"
 import { initializeSimulation } from "./simulation"
+import { initializeGUI } from "./simulation/gui"
 
 const { renderer, scene, camera } = projectInitialization()
 const simulation = initializeSimulation({ camera })
-
 scene.add(simulation.root)
+
+initializeGUI({
+	templateChangeHandler: simulation.handleHintTemplateChange.bind(simulation)
+})
 
 window.addEventListener("keydown", (event) => simulation.handleKeydown(event))
 window.addEventListener("mousemove", (event) => simulation.handleMouseMove(event))
