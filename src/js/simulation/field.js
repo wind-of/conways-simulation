@@ -18,9 +18,6 @@ import { aliveCellMesh } from "../three/meshes/cell"
 import { initializeHint } from "./hint"
 import { DOT, templates } from "../life-rules/templates"
 
-// TODO: terminationState для инверсии живых клеток по шаблону
-// TODO: изменения не происходят, пока intersectedCell не обновится
-
 export function initializeFieldControls({
 	matrix,
 	matrixSize = matrix.length,

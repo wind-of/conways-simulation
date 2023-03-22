@@ -9,7 +9,7 @@ import {
 import * as THREE from "three"
 
 import { initializeFieldControls } from "./field"
-import { normalizedRaycasterObjectPosition } from "../three/coordinates"
+import { normalizedRaycasterObjectPosition, positionToString } from "../three/coordinates"
 import { zeroMatrix } from "../utils"
 import { gameGridPlaneMesh } from "../three/meshes/plane"
 import { createGridMesh } from "../three/grid"
@@ -32,6 +32,8 @@ export function initializeSimulation({
 	const raycaster = initializeRaycaster({ object: planeMesh, camera })
 	root.add(planeMesh, wireLine, edgesLine)
 	field.display()
+
+	let previosPosition = null
 	return {
 		root,
 		field,
@@ -109,15 +111,18 @@ export function initializeSimulation({
 				return
 			}
 
-			this.field.hint.setHintsDefaultState()
 			const position = normalizedRaycasterObjectPosition({ object: intersectedCell })
-			// const isTargetAlive = this.field.isAlive(position)
+			const stringifiedPosition = positionToString(position)
+			if (stringifiedPosition === previosPosition) {
+				return
+			}
+			previosPosition = stringifiedPosition
+			this.field.hint.setHintsDefaultState()
+			this.field.hint.setHintPosition(position)
 
 			if (this.isHoldingMouse) {
 				this.field.hint.setHintVisibility(false)
 				this.field.handleCellChange({ position })
-			} else {
-				this.field.hint.setHintPosition(position)
 			}
 		}
 	}
