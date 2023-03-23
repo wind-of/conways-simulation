@@ -3,21 +3,29 @@ export const SIMPLE_INFINITE_GROWTH = "SIMPLE_INFINITE_GROWTH"
 export const SPIRAL_V1 = "SPIRAL_V1"
 export const SPIRAL_V2 = "SPIRAL_V2"
 export const DOT = "DOT"
+export const BOX_2X2 = "BOX_2X2"
 
 export const templates = {
-	[SIMPLE_GLIDER]: {
-		name: SIMPLE_GLIDER,
-		guiName: "Простой глайдер",
-		string: "bo$2bo$3o!",
-		width: 3,
-		height: 3
-	},
 	[DOT]: {
 		name: DOT,
 		guiName: "Точка",
 		string: "o!",
 		width: 1,
 		height: 1
+	},
+	[BOX_2X2]: {
+		name: DOT,
+		guiName: "Квадрат 2x2",
+		string: "2o$2o!",
+		width: 2,
+		height: 2
+	},
+	[SIMPLE_GLIDER]: {
+		name: SIMPLE_GLIDER,
+		guiName: "Простой глайдер",
+		string: "bo$2bo$3o!",
+		width: 3,
+		height: 3
 	},
 	[SPIRAL_V1]: {
 		name: SPIRAL_V1,

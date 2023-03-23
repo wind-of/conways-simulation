@@ -4,7 +4,7 @@ export function createGridMesh(mesh) {
 	const wireframe = new THREE.WireframeGeometry(mesh.geometry)
 	const wireLine = new THREE.LineSegments(wireframe)
 	wireLine.material.depthTest = false
-	wireLine.material.opacity = 0.2
+	wireLine.material.opacity = 0.1
 	wireLine.material.transparent = true
 	wireLine.rotateX(-Math.PI / 2)
 

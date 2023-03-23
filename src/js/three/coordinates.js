@@ -20,3 +20,8 @@ export const normalizedRaycasterObjectPosition = ({ object, offsetVector }) => {
 	}
 	return position
 }
+
+export const normalizedHintPosition = ({ x, z }) => ({
+	x: Math.floor(x),
+	z: Math.floor(z)
+})
