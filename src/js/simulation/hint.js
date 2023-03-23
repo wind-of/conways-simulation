@@ -16,8 +16,12 @@ export function initializeHint({ template, globalRoot }) {
 			this.root.visible = value
 		},
 		setHintPosition(position) {
-			const { x, z } = normalizedHintPosition(position)
-			this.root.position.set(x, DEFAULT_Y_POSITION + 0.01, z)
+			const { x, z } = normalizedHintPosition({
+				...position,
+				rowsCount: this.templateMatrix.length,
+				colsCount: this.templateMatrix[0].length
+			})
+			this.root.position.set(x, DEFAULT_Y_POSITION + 0.008, z)
 		},
 		setHintTemplate({ template }) {
 			const { templateHintRoot, templateMatrix } = initializeFieldFromTemplate({ template })

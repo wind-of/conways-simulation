@@ -21,7 +21,7 @@ export const normalizedRaycasterObjectPosition = ({ object, offsetVector }) => {
 	return position
 }
 
-export const normalizedHintPosition = ({ x, z }) => ({
-	x: Math.floor(x),
-	z: Math.floor(z)
+export const normalizedHintPosition = ({ x, z, rowsCount, colsCount }) => ({
+	x: x - ((rowsCount - 1) % 2) / 2,
+	z: z - ((colsCount - 1) % 2) / 2
 })
