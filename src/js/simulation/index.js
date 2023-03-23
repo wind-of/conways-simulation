@@ -101,7 +101,7 @@ export function initializeSimulation({
 		},
 		handleMouseUp() {
 			this.isHoldingMouse = false
-			this.field.hint.setHintVisibility(true)
+			this.field.hint.setHintVisibility(!this.isIterating && this.raycaster.hasIntersectedCell())
 		},
 		handleMouseMove({ clientX, clientY }) {
 			this.raycaster.setMousePosition({ x: clientX, y: clientY })
