@@ -8,16 +8,18 @@ EMPTY_FUNCTION
 
 export function initializeGUI({
 	handleFieldClear = EMPTY_FUNCTION,
+	handleFieldExport = EMPTY_FUNCTION,
 	stateChangeHandler = EMPTY_FUNCTION,
 	templateChangeHandler = EMPTY_FUNCTION
 }) {
 	const gui = new GUI()
 	const generalFolder = gui.addFolder("Общее")
-	const settings = {
-		"Очистить поле": () => handleFieldClear()
+	const generalSettings = {
+		"Очистить поле": () => handleFieldClear(),
+		"Экспортировать поле": () => handleFieldExport()
 	}
-	// ОЧИСТКА
-	generalFolder.add(settings, "Очистить поле")
+	// ОБЩЕЕ
+	Object.keys(generalSettings).forEach((key) => generalFolder.add(generalSettings, key))
 
 	// ШАБЛОНЫ
 	const templateButtonHandler =
