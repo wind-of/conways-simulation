@@ -1,6 +1,15 @@
 export const ALIVE_CELL_VALUE = 1
 export const DEAD_CELL_VALUE = 0
 export const NO_CELL_VALUE = 0
+export const ALIVE_CELL_LETTER = "o"
+export const DEAD_CELL_LETTER = "b"
+export const LIFE_STRING_NEWLINE_LETTER = "$"
+export const LIFE_STRING_END_LETTER = "!"
+
+export const CELL_TYPES = {
+	[ALIVE_CELL_LETTER]: ALIVE_CELL_VALUE,
+	[DEAD_CELL_LETTER]: DEAD_CELL_VALUE
+}
 
 export const DEFAULT_ITERATION_PER_SECOND = 100
 export const DEFAULT_ITERATION_PER_TIME = 1
