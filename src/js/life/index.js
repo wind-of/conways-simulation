@@ -60,7 +60,7 @@ export function encodeMatrixToLifeString(matrix) {
 	const getPrefix = (v) => (v > 1 ? v : "")
 	const rows = matrix.length
 	const cols = matrix[0].length
-	for (let x = 0, o = 0, b = 0; x < rows; x++) {
+	for (let x = 0, o = 0, b = 0; x < rows; x++, o = 0, b = 0) {
 		if (result) {
 			result += LIFE_STRING_NEWLINE_LETTER
 		}
