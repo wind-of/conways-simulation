@@ -11,7 +11,7 @@ import * as THREE from "three"
 
 import { initializeFieldControls } from "./field"
 import { normalizedRaycasterObjectPosition, positionToString } from "../three/coordinates"
-import { zeroMatrix } from "../utils"
+import { zeroMatrix, setupSimulationSettings } from "../utils"
 import { gameGridPlaneMesh } from "../three/meshes/plane"
 import { createGridMesh } from "../three/grid"
 import { initializeRaycaster } from "../three/raycaster"
@@ -19,11 +19,13 @@ import { initializeRaycaster } from "../three/raycaster"
 export function initializeSimulation({
 	camera,
 	root = new THREE.Object3D(),
-	matrix = zeroMatrix(DEFAULT_MATRIX_SIZE)
+	matrix = zeroMatrix(DEFAULT_MATRIX_SIZE),
+	settings
 }) {
+	const settings_ = setupSimulationSettings(settings)
 	const matrixSize = matrix.length
 
-	const field = initializeFieldControls({ root, matrix })
+	const field = initializeFieldControls({ root, matrix, rulesFunction: settings_.rulesFunction })
 	const planeMesh = gameGridPlaneMesh({ size: matrixSize })
 	const { wireLine, edgesLine } = createGridMesh(planeMesh)
 	const raycaster = initializeRaycaster({ object: planeMesh, camera })

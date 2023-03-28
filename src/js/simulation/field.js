@@ -21,6 +21,7 @@ import { DOT, templates } from "../life/templates"
 export function initializeFieldControls({
 	matrix,
 	matrixSize = matrix.length,
+	rulesFunction,
 	root,
 	shouldInitializeHint = true
 }) {
@@ -50,7 +51,7 @@ export function initializeFieldControls({
 
 	const willBeAlive = ({ x, z }) => {
 		const isCellAlive = isAlive({ x, z })
-		const count =
+		const neighboursCount =
 			get(x - 1, z - 1) +
 			get(x - 1, z) +
 			get(x - 1, z + 1) +
@@ -59,7 +60,7 @@ export function initializeFieldControls({
 			get(x + 1, z - 1) +
 			get(x + 1, z) +
 			get(x + 1, z + 1)
-		return isCellAlive ? count > 1 && count < 4 : count === 3
+		return rulesFunction({ isAlive: isCellAlive, neighboursCount })
 	}
 	let changes = []
 
