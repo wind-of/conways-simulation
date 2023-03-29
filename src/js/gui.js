@@ -3,12 +3,12 @@ import GUI from "lil-gui"
 import { INVERSION_STATE, REVIVAL_STATE, TERMINATION_STATE, EMPTY_FUNCTION } from "./constants"
 
 import { templates } from "./life/templates"
-
-EMPTY_FUNCTION
+import { rules } from "./life/rules"
 
 export function initializeGUI({
 	handleFieldClear = EMPTY_FUNCTION,
 	handleFieldCopy = EMPTY_FUNCTION,
+	handleRulesChange = EMPTY_FUNCTION,
 	stateChangeHandler = EMPTY_FUNCTION,
 	templateChangeHandler = EMPTY_FUNCTION
 }) {
@@ -22,6 +22,19 @@ export function initializeGUI({
 	}
 	// ОБЩЕЕ
 	Object.keys(generalSettings).forEach((key) => generalFolder.add(generalSettings, key))
+	// ПРАВИЛА
+	const rulesButtonHandler =
+		({ rule }) =>
+		() =>
+			handleRulesChange({ rule })
+	const rulesFolder = generalFolder.addFolder("Правила")
+	rulesFolder.close()
+	const rules_ = Object.values(rules)
+	const rulesOptions = rules_.reduce(
+		(acc, rule) => ((acc[rule.name] = rulesButtonHandler({ rule })), acc),
+		{}
+	)
+	rules_.forEach(({ name }) => rulesFolder.add(rulesOptions, name))
 
 	// ШАБЛОНЫ
 	const templateButtonHandler =

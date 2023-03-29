@@ -21,9 +21,9 @@ import { DOT, templates } from "../life/templates"
 export function initializeFieldControls({
 	matrix,
 	matrixSize = matrix.length,
-	rulesFunction,
 	root,
-	shouldInitializeHint = true
+	shouldInitializeHint = true,
+	settings = {}
 }) {
 	const hint = shouldInitializeHint
 		? initializeHint({ globalRoot: root, template: templates[DOT] })
@@ -60,7 +60,7 @@ export function initializeFieldControls({
 			get(x + 1, z - 1) +
 			get(x + 1, z) +
 			get(x + 1, z + 1)
-		return rulesFunction({ isAlive: isCellAlive, neighboursCount })
+		return settings.rulesFunction({ isAlive: isCellAlive, neighboursCount })
 	}
 	let changes = []
 

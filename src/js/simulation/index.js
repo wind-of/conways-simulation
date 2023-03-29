@@ -15,6 +15,7 @@ import { zeroMatrix, setupSimulationSettings } from "../utils"
 import { gameGridPlaneMesh } from "../three/meshes/plane"
 import { createGridMesh } from "../three/grid"
 import { initializeRaycaster } from "../three/raycaster"
+import { rulesFunctionFactory } from "../life/rules"
 
 export function initializeSimulation({
 	camera,
@@ -25,7 +26,7 @@ export function initializeSimulation({
 	const settings_ = setupSimulationSettings(settings)
 	const matrixSize = matrix.length
 
-	const field = initializeFieldControls({ root, matrix, rulesFunction: settings_.rulesFunction })
+	const field = initializeFieldControls({ root, matrix, settings: settings_ })
 	const planeMesh = gameGridPlaneMesh({ size: matrixSize })
 	const { wireLine, edgesLine } = createGridMesh(planeMesh)
 	const raycaster = initializeRaycaster({ object: planeMesh, camera })
@@ -74,6 +75,10 @@ export function initializeSimulation({
 				field.applyChanges()
 			}
 			field.display()
+		},
+
+		updateRulesFunction({ rule }) {
+			settings_.rulesFunction = rulesFunctionFactory({ name: rule.name })
 		},
 
 		handleHintTemplateChange({ template }) {

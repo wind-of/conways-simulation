@@ -17,6 +17,9 @@ initializeGUI({
 		const matrix = shouldReduce ? reduceMatrix(simulation.field.matrix) : simulation.field.matrix
 		const string = encodeMatrixToLifeString(matrix)
 		navigator.clipboard.writeText(string)
+	},
+	handleRulesChange({ rule }) {
+		simulation.updateRulesFunction({ rule })
 	}
 })
 
