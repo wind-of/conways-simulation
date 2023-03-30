@@ -5,7 +5,9 @@ import { initializeGUI } from "./gui"
 import { encodeMatrixToLifeString } from "./life"
 import { reduceMatrix } from "./utils"
 
-const { renderer, scene, camera } = projectInitialization()
+const { renderer, scene, camera } = projectInitialization({
+	canvas: document.getElementById("simulation")
+})
 const simulation = initializeSimulation({ camera })
 scene.add(simulation.root)
 
