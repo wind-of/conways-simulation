@@ -1,8 +1,8 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-import { DEFAULT_FOV, DEFAULT_NEAR, DEFAULT_FAR, DEFAULT_Y_POSITION } from "../constants"
+import { DEFAULT_FOV, DEFAULT_NEAR, DEFAULT_FAR } from "../constants"
 
-export function projectInitialization({ canvas }) {
+export function projectInitialization({ canvas, cameraPosition = { x: 100, y: 100, z: 0 } }) {
 	const renderer = new THREE.WebGLRenderer({ antialias: true, canvas })
 	renderer.setSize(window.innerWidth, window.innerHeight)
 	const scene = new THREE.Scene()
@@ -13,7 +13,7 @@ export function projectInitialization({ canvas }) {
 		DEFAULT_FAR
 	)
 	const orbit = new OrbitControls(camera, renderer.domElement)
-	camera.position.set(100, 100, 0)
+	camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
 	orbit.update()
 	orbit.enableRotate = false
 
@@ -23,16 +23,4 @@ export function projectInitialization({ canvas }) {
 		camera,
 		orbit
 	}
-}
-
-export function cloneMesh(mesh, { x, z }) {
-	const newMesh = mesh.clone()
-	newMesh.position.set(x, DEFAULT_Y_POSITION, z)
-	return newMesh
-}
-
-export function fullyTerminateMesh(scene, mesh) {
-	scene.remove(mesh)
-	mesh.geometry.dispose()
-	mesh.material.dispose()
 }

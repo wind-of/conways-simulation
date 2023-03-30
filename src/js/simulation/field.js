@@ -4,7 +4,7 @@ import {
 	positionToString,
 	normilizeCoordinates
 } from "../three/coordinates"
-import { fullyTerminateMesh, cloneMesh } from "../three/root"
+import { fullyTerminateMesh, cloneMesh } from "../three/meshes"
 
 import {
 	ALIVE_CELL_VALUE,
@@ -149,7 +149,7 @@ export function initializeFieldControls({
 			if (mesh) {
 				return
 			}
-			const aliveCell = cloneMesh(aliveCellMesh, position)
+			const aliveCell = cloneMesh(aliveCellMesh, { y: settings.yPosition, ...position })
 			this.saveObject(aliveCell)
 			revive(position)
 			this.root.add(aliveCell)

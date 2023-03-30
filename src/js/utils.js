@@ -1,5 +1,3 @@
-import { defaultRulesFunction } from "./life/rules"
-
 export const zeroArray = (length) => Array.from({ length }, () => 0)
 export const zeroMatrix = (length) => Array.from({ length }, () => zeroArray(length))
 
@@ -28,8 +26,3 @@ export function reduceMatrix(matrix) {
 			(result[x - minX] || (result[x - minX] = []))[y - minY] = matrix[x][y]
 	return result
 }
-
-export const setupSimulationSettings = (options) => ({
-	rulesFunction: defaultRulesFunction(),
-	...options
-})

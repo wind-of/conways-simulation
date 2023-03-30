@@ -1,17 +1,10 @@
-import {
-	DEFAULT_ITERATION_PER_SECOND,
-	DEFAULT_MATRIX_SIZE,
-	SECOND_MS,
-	SPACE_KEY,
-	MOUSE_LEFT_BUTTON,
-	DEFAULT_ITERATION_PER_TIME
-} from "../constants"
+import { SECOND_MS, SPACE_KEY, MOUSE_LEFT_BUTTON } from "../constants"
 
 import * as THREE from "three"
 
 import { initializeFieldControls } from "./field"
 import { normalizedRaycasterObjectPosition, positionToString } from "../three/coordinates"
-import { zeroMatrix, setupSimulationSettings } from "../utils"
+import { setupSimulationSettings } from "./settings"
 import { gameGridPlaneMesh } from "../three/meshes/plane"
 import { createGridMesh } from "../three/grid"
 import { initializeRaycaster } from "../three/raycaster"
@@ -20,14 +13,12 @@ import { rulesFunctionFactory } from "../life/rules"
 export function initializeSimulation({
 	camera,
 	root = new THREE.Object3D(),
-	matrix = zeroMatrix(DEFAULT_MATRIX_SIZE),
-	settings
+	settings: settings_ = {}
 }) {
-	const settings_ = setupSimulationSettings(settings)
-	const matrixSize = matrix.length
-
-	const field = initializeFieldControls({ root, matrix, settings: settings_ })
-	const planeMesh = gameGridPlaneMesh({ size: matrixSize })
+	const settings = setupSimulationSettings(settings_)
+	const { matrix } = settings
+	const field = initializeFieldControls({ root, matrix, settings })
+	const planeMesh = gameGridPlaneMesh({ size: settings.matrixSize })
 	const { wireLine, edgesLine } = createGridMesh(planeMesh)
 	const raycaster = initializeRaycaster({ object: planeMesh, camera })
 	root.add(planeMesh, wireLine, edgesLine)
@@ -37,7 +28,7 @@ export function initializeSimulation({
 	return {
 		root,
 		field,
-		matrixSize,
+		settings,
 		raycaster,
 
 		isHoldingMouse: false,
@@ -49,7 +40,7 @@ export function initializeSimulation({
 			this.isIterating = !this.isIterating
 		},
 		shouldIterateAtTime() {
-			return this.iteration < ((this.time / (SECOND_MS / DEFAULT_ITERATION_PER_SECOND)) | 0)
+			return this.iteration < ((this.time / (SECOND_MS / settings.iterationsPerSecond)) | 0)
 		},
 
 		clearField() {
@@ -69,16 +60,17 @@ export function initializeSimulation({
 			}
 			this.iteration++
 			const field = this.field
-			for (let k = 0; k < DEFAULT_ITERATION_PER_TIME; k++) {
-				for (let x = 0; x < this.matrixSize; x++)
-					for (let z = 0; z < this.matrixSize; z++) field.iterate({ x, z })
+			const { matrixSize, iterationsPerTime } = this.settings
+			for (let k = 0; k < iterationsPerTime; k++) {
+				for (let x = 0; x < matrixSize; x++)
+					for (let z = 0; z < matrixSize; z++) field.iterate({ x, z })
 				field.applyChanges()
 			}
 			field.display()
 		},
 
 		updateRulesFunction({ rule }) {
-			settings_.rulesFunction = rulesFunctionFactory({ name: rule.name })
+			settings.rulesFunction = rulesFunctionFactory({ name: rule.name })
 		},
 
 		handleHintTemplateChange({ template }) {
@@ -102,7 +94,10 @@ export function initializeSimulation({
 			) {
 				return
 			}
-			const position = normalizedRaycasterObjectPosition({ object: raycaster.getIntersectedCell() })
+			const position = normalizedRaycasterObjectPosition({
+				object: raycaster.getIntersectedCell(),
+				offsetVector: this.settings.offset
+			})
 			this.field.handleCellChange({ position })
 			this.isHoldingMouse = true
 		},
@@ -118,7 +113,10 @@ export function initializeSimulation({
 				return
 			}
 
-			const position = normalizedRaycasterObjectPosition({ object: intersectedCell })
+			const position = normalizedRaycasterObjectPosition({
+				object: intersectedCell,
+				offsetVector: this.settings.offset
+			})
 			const stringifiedPosition = positionToString(position)
 			if (stringifiedPosition === previosPosition) {
 				return
