@@ -1,6 +1,13 @@
 // eslint-disable-next-line import/no-named-as-default
 import GUI from "lil-gui"
-import { INVERSION_STATE, REVIVAL_STATE, TERMINATION_STATE, EMPTY_FUNCTION } from "./constants"
+import {
+	INVERSION_STATE,
+	REVIVAL_STATE,
+	TERMINATION_STATE,
+	EMPTY_FUNCTION,
+	DEFAULT_ITERATION_PER_SECOND,
+	DEFAULT_ITERATION_PER_TIME
+} from "./constants"
 
 import { templates } from "./life/templates"
 import { rules } from "./life/rules"
@@ -10,7 +17,9 @@ export function initializeGUI({
 	handleFieldCopy = EMPTY_FUNCTION,
 	handleRulesChange = EMPTY_FUNCTION,
 	stateChangeHandler = EMPTY_FUNCTION,
-	templateChangeHandler = EMPTY_FUNCTION
+	templateChangeHandler = EMPTY_FUNCTION,
+	handleIterationsPerSecondChange = EMPTY_FUNCTION,
+	handleIterationsPerTimeChange = EMPTY_FUNCTION
 }) {
 	const gui = new GUI()
 	const generalFolder = gui.addFolder("Общее")
@@ -22,12 +31,25 @@ export function initializeGUI({
 	}
 	// ОБЩЕЕ
 	Object.keys(generalSettings).forEach((key) => generalFolder.add(generalSettings, key))
+	// НАСТРОЙКИ СИМУЛЯЦИИ
+	const settingsFolder = generalFolder.addFolder("Настройки симуляции")
+	settingsFolder.close()
+	const simulationSettings = {
+		"Итерации в секунду": DEFAULT_ITERATION_PER_SECOND,
+		"Итерации за раз": DEFAULT_ITERATION_PER_TIME
+	}
+	settingsFolder
+		.add(simulationSettings, "Итерации в секунду", 1, 100, 1)
+		.onChange((value) => handleIterationsPerSecondChange({ value }))
+	settingsFolder
+		.add(simulationSettings, "Итерации за раз", 1, 100, 1)
+		.onChange((value) => handleIterationsPerTimeChange({ value }))
 	// ПРАВИЛА
 	const rulesButtonHandler =
 		({ rule }) =>
 		() =>
 			handleRulesChange({ rule })
-	const rulesFolder = generalFolder.addFolder("Правила")
+	const rulesFolder = settingsFolder.addFolder("Правила")
 	rulesFolder.close()
 	const rules_ = Object.values(rules)
 	const rulesOptions = rules_.reduce(

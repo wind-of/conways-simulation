@@ -17,5 +17,12 @@ export const setupSimulationSettings = (options) => ({
 	matrixSize: DEFAULT_MATRIX_SIZE,
 	offset: new THREE.Vector3(0, 0, 0),
 	matrix: zeroMatrix(options.matrixSize || DEFAULT_MATRIX_SIZE),
-	...options
+	...options,
+
+	setIterationsPerSecond({ value }) {
+		this.iterationsPerSecond = value
+	},
+	setIterationsPerTime({ value }) {
+		this.iterationsPerTime = value
+	}
 })

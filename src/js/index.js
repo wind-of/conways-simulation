@@ -20,9 +20,11 @@ initializeGUI({
 		const string = encodeMatrixToLifeString(matrix)
 		navigator.clipboard.writeText(string)
 	},
-	handleRulesChange({ rule }) {
-		simulation.updateRulesFunction({ rule })
-	}
+	handleRulesChange: simulation.updateRulesFunction.bind(simulation),
+	handleIterationsPerSecondChange: simulation.settings.setIterationsPerSecond.bind(
+		simulation.settings
+	),
+	handleIterationsPerTimeChange: simulation.settings.setIterationsPerTime.bind(simulation.settings)
 })
 
 window.addEventListener("keydown", (event) => simulation.handleKeydown(event))
