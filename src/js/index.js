@@ -1,6 +1,6 @@
 import { projectInitialization } from "./three/root"
 import { checkRendererAspect } from "./three/responsive"
-import { initializeSimulation } from "./simulation"
+import { initializeSimulation } from "./simulation/simulation"
 import { initializeGUI } from "./gui"
 import { encodeMatrixToLifeString } from "./life"
 import { reduceMatrix } from "./utils"

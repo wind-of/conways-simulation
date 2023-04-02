@@ -49,3 +49,5 @@ export const templates = {
 		width: 8
 	}
 }
+
+export const DEFAULT_TEMPLATE = templates[DOT]

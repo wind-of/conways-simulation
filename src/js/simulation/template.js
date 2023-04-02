@@ -1,7 +1,7 @@
 import * as THREE from "three"
 import { templateGridPlaneMesh } from "../three/meshes/plane"
 import { lifestringParser } from "../life"
-import { initializeFieldControls } from "./field"
+import { initializeFieldControls } from "./field/field"
 
 export function initializeFieldFromTemplate({ template }) {
 	const templateHintRoot = new THREE.Object3D()
@@ -10,8 +10,7 @@ export function initializeFieldFromTemplate({ template }) {
 	const templateHintField = initializeFieldControls({
 		root: templateHintRoot,
 		matrix: templateMatrix,
-		matrixSize: template.rows,
-		shouldInitializeHint: false
+		matrixSize: template.rows
 	})
 	templateHintRoot.add(templateGrid)
 	templateHintField.display()

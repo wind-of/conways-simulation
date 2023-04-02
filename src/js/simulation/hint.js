@@ -3,8 +3,9 @@ import { hintOpacityAnimation } from "../three/animation"
 
 import { initializeFieldFromTemplate } from "./template"
 import { normalizedHintPosition } from "../three/coordinates"
+import { DEFAULT_TEMPLATE } from "../life/templates"
 
-export function initializeHint({ template, globalRoot }) {
+export function initializeHint({ template = DEFAULT_TEMPLATE, globalRoot }) {
 	const { templateHintRoot, templateMatrix } = initializeFieldFromTemplate({ template })
 
 	return {

@@ -2,13 +2,14 @@ import { SECOND_MS, SPACE_KEY, MOUSE_LEFT_BUTTON } from "../constants"
 
 import * as THREE from "three"
 
-import { initializeFieldControls } from "./field"
+import { initializeFieldControls } from "./field/field"
 import { normalizedRaycasterObjectPosition, positionToString } from "../three/coordinates"
 import { setupSimulationSettings } from "./settings"
 import { gameGridPlaneMesh } from "../three/meshes/plane"
 import { createGridMesh } from "../three/grid"
 import { initializeRaycaster } from "../three/raycaster"
 import { rulesFunctionFactory } from "../life/rules"
+import { initializeHint } from "./hint"
 
 export function initializeSimulation({
 	camera,
@@ -17,7 +18,12 @@ export function initializeSimulation({
 }) {
 	const settings = setupSimulationSettings(settings_)
 	const { matrix } = settings
-	const field = initializeFieldControls({ root, matrix, settings })
+	const field = initializeFieldControls({
+		root,
+		matrix,
+		settings,
+		hint: initializeHint({ globalRoot: root })
+	})
 	const planeMesh = gameGridPlaneMesh({ size: settings.matrixSize })
 	const { wireLine, edgesLine } = createGridMesh(planeMesh)
 	const raycaster = initializeRaycaster({ object: planeMesh, camera })
