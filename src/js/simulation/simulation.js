@@ -5,11 +5,10 @@ import * as THREE from "three"
 import { initializeFieldControls } from "./field/field"
 import { normalizedRaycasterObjectPosition, positionToString } from "../three/coordinates"
 import { setupSimulationSettings } from "./settings"
-import { gameGridPlaneMesh } from "../three/meshes/plane"
-import { createGridMesh } from "../three/grid"
 import { initializeRaycaster } from "../three/raycaster"
 import { rulesFunctionFactory } from "../life/rules"
 import { initializeHint } from "./hint"
+import { initializeSimulationRootMesh } from "./simulation.mesh"
 
 export function initializeSimulation({
 	camera,
@@ -17,17 +16,15 @@ export function initializeSimulation({
 	settings: settings_ = {}
 }) {
 	const settings = setupSimulationSettings(settings_)
-	const { matrix } = settings
+	const { matrix, matrixSize } = settings
 	const field = initializeFieldControls({
 		root,
 		matrix,
 		settings,
 		hint: initializeHint({ globalRoot: root })
 	})
-	const planeMesh = gameGridPlaneMesh({ size: settings.matrixSize })
-	const { wireLine, edgesLine } = createGridMesh(planeMesh)
-	const raycaster = initializeRaycaster({ object: planeMesh, camera })
-	root.add(planeMesh, wireLine, edgesLine)
+	const rootMesh = initializeSimulationRootMesh({ root, matrixSize })
+	const raycaster = initializeRaycaster({ object: rootMesh, camera })
 	field.display()
 
 	let previosPosition = null
@@ -66,7 +63,7 @@ export function initializeSimulation({
 			}
 			this.iteration++
 			const field = this.field
-			const { matrixSize, iterationsPerTime } = this.settings
+			const { iterationsPerTime } = this.settings
 			for (let k = 0; k < iterationsPerTime; k++) {
 				for (let x = 0; x < matrixSize; x++)
 					for (let z = 0; z < matrixSize; z++) field.iterate({ x, z })
