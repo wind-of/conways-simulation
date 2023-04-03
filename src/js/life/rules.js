@@ -1,22 +1,22 @@
-export const RULE_B3S23 = "B3/S23"
-export const RULE_B245S368 = "B245/S368"
-export const RULE_B23S38 = "B23/S38"
+export const RULE_S23B3 = "S23/B3"
+export const RULE_S245B368 = "S245/B368"
+export const RULE_S23B38 = "S23/B38"
 
 export const rules = {
-	[RULE_B3S23]: {
-		name: RULE_B3S23,
-		birth: [3],
-		stay: [2, 3]
+	[RULE_S23B3]: {
+		name: RULE_S23B3,
+		stay: [2, 3],
+		birth: [3]
 	},
-	[RULE_B245S368]: {
-		name: RULE_B245S368,
-		birth: [2, 4, 5],
-		stay: [3, 6, 8]
+	[RULE_S245B368]: {
+		name: RULE_S245B368,
+		stay: [2, 4, 5],
+		birth: [3, 6, 8]
 	},
-	[RULE_B23S38]: {
-		name: RULE_B23S38,
-		birth: [2, 3],
-		stay: [3, 8]
+	[RULE_S23B38]: {
+		name: RULE_S23B38,
+		stay: [2, 3],
+		birth: [3, 8]
 	}
 }
 
@@ -27,5 +27,5 @@ export function rulesFunctionFactory(rule) {
 }
 
 export function defaultRulesFunction() {
-	return rulesFunctionFactory({ name: RULE_B3S23 })
+	return rulesFunctionFactory({ name: RULE_S23B3 })
 }
