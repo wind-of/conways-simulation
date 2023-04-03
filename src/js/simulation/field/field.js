@@ -69,11 +69,11 @@ export function initializeFieldControls({
 			const normalizedCenter = normilizeCoordinates({ position: center, max: matrixSize })
 			const rowsCount = templateMatrix.length
 			const columnsCount = templateMatrix[0].length
-			const startX = normalizedCenter.x - Math.floor(columnsCount / 2)
-			const startZ = normalizedCenter.z - Math.floor(rowsCount / 2)
+			const startX = normalizedCenter.x - Math.floor(rowsCount / 2)
+			const startZ = normalizedCenter.z - Math.floor(columnsCount / 2)
 
-			for (let x = 0; x < columnsCount; x++)
-				for (let z = 0; z < rowsCount; z++) {
+			for (let x = 0; x < rowsCount; x++)
+				for (let z = 0; z < columnsCount; z++) {
 					const fieldPosition = reverseNormilizeCoordinates({
 						position: { x: x + startX, z: z + startZ },
 						max: matrixSize

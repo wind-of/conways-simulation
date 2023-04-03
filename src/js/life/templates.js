@@ -4,7 +4,12 @@ export const SPIRAL_V1 = "SPIRAL_V1"
 export const SPIRAL_V2 = "SPIRAL_V2"
 export const DOT = "DOT"
 export const BOX_2X2 = "BOX_2X2"
+export const CRAB = "CRAB"
+export const JELLYFISH = "JELLYFISH"
+export const CLOCK = "CLOCK"
+export const CRAB_V2 = "CRAB_V2"
 
+// width - x, height - y
 export const templates = {
 	[DOT]: {
 		name: DOT,
@@ -47,6 +52,34 @@ export const templates = {
 		string: `6bo$4bob2o$4bobo$4bo$2bo$obo!`,
 		height: 8,
 		width: 8
+	},
+	[CRAB]: {
+		name: CRAB,
+		guiName: "Краб",
+		string: `o2bo$4bo$o3bo$b4o!`,
+		height: 5,
+		width: 5
+	},
+	[CRAB_V2]: {
+		name: CRAB_V2,
+		guiName: "Краб v2",
+		string: "8b2o$7b2o$9bo$11b2o$10bo$$9bo2bo$b2o5b2o$2o5bo$2bo4bobo$4b2o2bo$4b2o!",
+		height: 13,
+		width: 13
+	},
+	[JELLYFISH]: {
+		name: JELLYFISH,
+		guiName: "Медуза",
+		string: "o$2o$3o!",
+		height: 3,
+		width: 3
+	},
+	[CLOCK]: {
+		name: CLOCK,
+		guiName: "Часы",
+		string: "2bo$obo$bobo$bo!",
+		height: 4,
+		width: 4
 	}
 }
 
