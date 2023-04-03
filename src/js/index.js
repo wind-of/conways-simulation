@@ -5,9 +5,8 @@ import { initializeGUI } from "./gui"
 import { encodeMatrixToLifeString } from "./life"
 import { reduceMatrix } from "./utils"
 
-const { renderer, scene, camera } = projectInitialization({
-	canvas: document.getElementById("simulation")
-})
+const canvas = document.getElementById("simulation")
+const { renderer, scene, camera } = projectInitialization({ canvas })
 const simulation = initializeSimulation({ camera })
 scene.add(simulation.root)
 
@@ -28,8 +27,14 @@ initializeGUI({
 })
 
 window.addEventListener("keydown", (event) => simulation.handleKeydown(event))
-window.addEventListener("mousemove", (event) => simulation.handleMouseMove(event))
-window.addEventListener("mousedown", (event) => simulation.handleMouseDown(event))
+window.addEventListener(
+	"mousemove",
+	(event) => event.target === canvas && simulation.handleMouseMove(event)
+)
+window.addEventListener(
+	"mousedown",
+	(event) => event.target === canvas && simulation.handleMouseDown(event)
+)
 window.addEventListener("mouseup", () => simulation.handleMouseUp())
 
 function animate(time) {
