@@ -64,7 +64,6 @@ export function initializeSimulation({
 			this.iteration++
 			const field = this.field
 			const { iterationsPerTime } = this.settings
-			console.log(iterationsPerTime)
 			for (let k = 0; k < iterationsPerTime; k++) {
 				const positions = field.controls.getPositionsToIterate({ shouldClear: true })
 				for (let i = 0; i < positions.length; i++) field.iterate(positions[i])
