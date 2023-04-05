@@ -4,6 +4,11 @@ export const positionToString = ({ x, z }) => `x${x};z${z}`
 
 export const normilizeIndex = (d, max) => Math.ceil(max / 2 + Math.round(d) - 1)
 export const reverseNormilizeIndex = (d, max) => d - max / 2 + 0.5
+export const mirroredIndex = ({ d, max }) => {
+	const offset = d < 0 ? max : d >= max ? -max : 0
+	return d + offset
+}
+
 export const normilizeCoordinates = ({ position: { x, z }, max }) => ({
 	x: normilizeIndex(x, max),
 	z: normilizeIndex(z, max)
@@ -11,6 +16,10 @@ export const normilizeCoordinates = ({ position: { x, z }, max }) => ({
 export const reverseNormilizeCoordinates = ({ position: { x, z }, max }) => ({
 	x: reverseNormilizeIndex(x, max),
 	z: reverseNormilizeIndex(z, max)
+})
+export const mirroredCoordinates = ({ position: { x, z }, max }) => ({
+	x: mirroredIndex({ d: x, max }),
+	z: mirroredIndex({ d: z, max })
 })
 
 export const normalizedRaycasterObjectPosition = ({ object, offsetVector }) => {

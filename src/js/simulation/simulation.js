@@ -64,9 +64,10 @@ export function initializeSimulation({
 			this.iteration++
 			const field = this.field
 			const { iterationsPerTime } = this.settings
+			console.log(iterationsPerTime)
 			for (let k = 0; k < iterationsPerTime; k++) {
-				for (let x = 0; x < matrixSize; x++)
-					for (let z = 0; z < matrixSize; z++) field.iterate({ x, z })
+				const positions = field.controls.getPositionsToIterate({ shouldClear: true })
+				for (let i = 0; i < positions.length; i++) field.iterate(positions[i])
 				field.applyChanges()
 			}
 			field.display()

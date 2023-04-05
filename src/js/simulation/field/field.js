@@ -25,16 +25,15 @@ export function initializeFieldControls({
 	if (hint) {
 		root.add(hint.root)
 	}
-	const { kill, revive, isAlive, willBeAlive, set } = initializeFieldMatrixControls({
-		matrix,
-		matrixSize,
-		settings
-	})
+	const fieldControls = initializeFieldMatrixControls({ matrix, matrixSize, settings })
+	const { kill, revive, isAlive, willBeAlive, set } = fieldControls
 	let changes = []
 	return {
 		root,
 		matrix,
 		objects: {},
+		controls: fieldControls,
+
 		state: REVIVAL_STATE,
 		setState({ state }) {
 			this.state = state
@@ -103,13 +102,24 @@ export function initializeFieldControls({
 		},
 
 		applyChanges() {
-			changes.forEach(({ value, position: { x, z } }) => set(x, z, value))
+			changes.forEach(({ value, position: { x, z } }) => {
+				set(x, z, value)
+				fieldControls.handlePositionChange({ x, z })
+			})
 			changes = []
 		},
 		iterate(position_) {
 			const position = reverseNormilizeCoordinates({ position: position_, max: matrixSize })
 			const value = willBeAlive(position) ? ALIVE_CELL_VALUE : DEAD_CELL_VALUE
 			changes.push({ position, value })
+		},
+		iteratePositions({ positions, isReverseNormalized = false }) {
+			for (let i = 0; i < positions.length; i++) {
+				const position = isReverseNormalized
+					? normilizeCoordinates({ position: positions[i], max: matrixSize })
+					: positions[i]
+				this.iterate(position)
+			}
 		},
 		reviveCell({ position }) {
 			const mesh = this.getObjectAtPosition({ position })
