@@ -100,7 +100,7 @@ export function initializeSimulation({
 				object: raycaster.getIntersectedCell(),
 				offsetVector: this.settings.offset
 			})
-			this.field.handleCellChange({ position })
+			this.field.applyHintTemplateToField({ center: position })
 			this.isHoldingMouse = true
 		},
 		handleMouseUp() {
@@ -128,7 +128,7 @@ export function initializeSimulation({
 			this.field.hint.setHintPosition(position)
 
 			if (this.isHoldingMouse) {
-				this.field.handleCellChange({ position })
+				this.field.applyHintTemplateToField({ center: position })
 			}
 		}
 	}

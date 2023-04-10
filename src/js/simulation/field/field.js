@@ -5,6 +5,7 @@ import {
 } from "../../three/coordinates"
 import { fullyTerminateMesh, cloneMesh } from "../../three/meshes"
 
+import { doesHintCrossBorders } from "../../utils"
 import {
 	ALIVE_CELL_VALUE,
 	DEAD_CELL_VALUE,
@@ -71,6 +72,10 @@ export function initializeFieldControls({
 			const startX = normalizedCenter.x - Math.floor(rowsCount / 2)
 			const startZ = normalizedCenter.z - Math.floor(columnsCount / 2)
 
+			if (doesHintCrossBorders({ matrixSize, rowsCount, columnsCount, startX, startZ })) {
+				return
+			}
+
 			for (let x = 0; x < rowsCount; x++)
 				for (let z = 0; z < columnsCount; z++) {
 					const fieldPosition = reverseNormilizeCoordinates({
@@ -96,9 +101,6 @@ export function initializeFieldControls({
 				}
 			this.applyChanges()
 			this.display()
-		},
-		handleCellChange({ position }) {
-			this.applyHintTemplateToField({ center: position })
 		},
 
 		applyChanges() {

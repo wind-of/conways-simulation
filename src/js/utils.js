@@ -26,3 +26,12 @@ export function reduceMatrix(matrix) {
 			(result[x - minX] || (result[x - minX] = []))[y - minY] = matrix[x][y]
 	return result
 }
+
+export function doesHintCrossBorders({ matrixSize, rowsCount, columnsCount, startX, startZ }) {
+	return (
+		matrixSize < rowsCount + startX ||
+		matrixSize < columnsCount + startZ ||
+		startX < 0 ||
+		startZ < 0
+	)
+}
