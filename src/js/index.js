@@ -4,6 +4,7 @@ import { initializeSimulation } from "./simulation/simulation"
 import { initializeGUI } from "./gui"
 import { encodeMatrixToLifeString } from "./life"
 import { reduceMatrix } from "./utils"
+import { SPACE_KEY } from "./constants"
 
 const canvas = document.getElementById("simulation")
 const { renderer, scene, camera } = projectInitialization({ canvas })
@@ -23,10 +24,14 @@ initializeGUI({
 	handleIterationsPerSecondChange: simulation.settings.setIterationsPerSecond.bind(
 		simulation.settings
 	),
-	handleIterationsPerTimeChange: simulation.settings.setIterationsPerTime.bind(simulation.settings)
+	handleIterationsPerTimeChange: simulation.settings.setIterationsPerTime.bind(simulation.settings),
+	handleSimulationStateChange: simulation.toggleIterationState.bind(simulation)
 })
 
-window.addEventListener("keydown", (event) => simulation.handleKeydown(event))
+window.addEventListener(
+	"keydown",
+	({ key }) => key === SPACE_KEY && simulation.toggleIterationState()
+)
 window.addEventListener(
 	"mousemove",
 	(event) => event.target === canvas && simulation.handleMouseMove(event)

@@ -1,4 +1,4 @@
-import { SECOND_MS, SPACE_KEY, MOUSE_LEFT_BUTTON } from "../constants"
+import { SECOND_MS, MOUSE_LEFT_BUTTON } from "../constants"
 
 import * as THREE from "three"
 
@@ -76,6 +76,11 @@ export function initializeSimulation({
 			settings.rulesFunction = rulesFunctionFactory({ name: rule.name })
 		},
 
+		toggleIterationState() {
+			this.toggleIteration()
+			this.field.hint.setHintVisibility(!this.isIterating)
+		},
+
 		handleHintTemplateChange({ template }) {
 			this.field.hint.setHintTemplate({ template })
 		},
@@ -83,12 +88,6 @@ export function initializeSimulation({
 			this.field.setState({ state })
 		},
 
-		handleKeydown({ key }) {
-			if (key === SPACE_KEY) {
-				this.toggleIteration()
-				this.field.hint.setHintVisibility(!this.isIterating)
-			}
-		},
 		handleMouseDown({ button }) {
 			if (
 				this.isIterating ||

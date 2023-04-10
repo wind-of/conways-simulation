@@ -19,13 +19,15 @@ export function initializeGUI({
 	stateChangeHandler = EMPTY_FUNCTION,
 	templateChangeHandler = EMPTY_FUNCTION,
 	handleIterationsPerSecondChange = EMPTY_FUNCTION,
-	handleIterationsPerTimeChange = EMPTY_FUNCTION
+	handleIterationsPerTimeChange = EMPTY_FUNCTION,
+	handleSimulationStateChange = EMPTY_FUNCTION
 }) {
 	const gui = new GUI()
 	const generalFolder = gui.addFolder("Общее")
 	generalFolder.close()
 	const generalSettings = {
-		"Очистить поле": () => handleFieldClear(),
+		"On/Off": handleSimulationStateChange,
+		"Очистить поле": handleFieldClear,
 		"Скопировать поле [с сжатием]": () => handleFieldCopy({ shouldReduce: true }),
 		"Скопировать поле [без сжатия]": () => handleFieldCopy({ shouldReduce: false })
 	}
