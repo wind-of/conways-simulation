@@ -10,6 +10,11 @@ npm install
 npm run start
 ```
 
+### Демонстрация
+- [demo](https://ddl2zj-1234.csb.app/)
+- [source](https://codesandbox.io/p/github/wind-of/game-of-life/master?workspaceId=47eff916-419c-40d7-a601-0531e3f65336)
+
+
 ### Руководство
 Настройки симуляции по умолчанию:
 	- Размер: **50x50 [2500 клеток]**;
