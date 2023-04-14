@@ -9,6 +9,7 @@ import { initializeRaycaster } from "../three/raycaster"
 import { rulesFunctionFactory } from "../life/rules"
 import { initializeHint } from "./hint"
 import { initializeSimulationRootMesh } from "./simulation.mesh"
+import { reverseCoordinateSigns } from "../utils"
 
 export function initializeSimulation({
 	camera,
@@ -16,13 +17,14 @@ export function initializeSimulation({
 	settings: settings_ = {}
 }) {
 	const settings = setupSimulationSettings(settings_)
-	const { matrix, matrixSize } = settings
+	const { matrix, matrixSize, offset } = settings
 	const field = initializeFieldControls({
 		root,
 		matrix,
 		settings,
 		hint: initializeHint({ globalRoot: root })
 	})
+	root.position.set(offset.x, offset.y, offset.z)
 	const rootMesh = initializeSimulationRootMesh({ root, matrixSize })
 	const raycaster = initializeRaycaster({ object: rootMesh, camera })
 	field.display()
@@ -98,7 +100,7 @@ export function initializeSimulation({
 			}
 			const position = normalizedRaycasterObjectPosition({
 				object: raycaster.getIntersectedCell(),
-				offsetVector: this.settings.offset
+				offsetVector: reverseCoordinateSigns(this.settings.offset)
 			})
 			this.field.applyHintTemplateToField({ center: position })
 			this.isHoldingMouse = true
@@ -117,7 +119,7 @@ export function initializeSimulation({
 
 			const position = normalizedRaycasterObjectPosition({
 				object: intersectedCell,
-				offsetVector: this.settings.offset
+				offsetVector: reverseCoordinateSigns(this.settings.offset)
 			})
 			const stringifiedPosition = positionToString(position)
 			if (stringifiedPosition === previosPosition) {

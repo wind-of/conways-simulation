@@ -35,3 +35,11 @@ export function doesHintCrossBorders({ matrixSize, rowsCount, columnsCount, star
 		startZ < 0
 	)
 }
+
+export function reverseCoordinateSigns({ x, y, z }) {
+	return {
+		x: -x,
+		y: -y,
+		z: -z
+	}
+}
