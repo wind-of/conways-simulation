@@ -1,5 +1,5 @@
 {
-  "name": "tiles",
+  "name": "conways-simulation",
   "version": "1.0.0",
   "description": "",
   "main": "scripts.js",
