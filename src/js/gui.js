@@ -4,11 +4,10 @@ import {
 	INVERSION_STATE,
 	REVIVAL_STATE,
 	TERMINATION_STATE,
-	EMPTY_FUNCTION,
 	DEFAULT_ITERATION_PER_SECOND,
 	DEFAULT_ITERATION_PER_TIME
-} from "./constants"
-
+} from "./constants/simulation.settings"
+import { EMPTY_FUNCTION } from "./constants/general"
 import { templates } from "./life/templates"
 import { rules } from "./life/rules"
 

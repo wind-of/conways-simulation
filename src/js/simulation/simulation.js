@@ -1,4 +1,4 @@
-import { SECOND_MS, MOUSE_LEFT_BUTTON } from "../constants"
+import { SECOND_MS, MOUSE_EVENT_LEFT_BUTTON } from "../constants/general"
 
 import * as THREE from "three"
 
@@ -94,7 +94,7 @@ export function initializeSimulation({
 			if (
 				this.isIterating ||
 				!this.raycaster.hasIntersectedCell() ||
-				button !== MOUSE_LEFT_BUTTON
+				button !== MOUSE_EVENT_LEFT_BUTTON
 			) {
 				return
 			}

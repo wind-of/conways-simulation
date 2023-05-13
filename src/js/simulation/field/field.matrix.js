@@ -6,7 +6,11 @@ import {
 	normilizeCoordinates
 } from "../../three/coordinates"
 
-import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE, NO_CELL_VALUE } from "../../constants"
+import {
+	ALIVE_CELL_VALUE,
+	DEAD_CELL_VALUE,
+	NO_CELL_VALUE
+} from "../../constants/simulation.settings"
 
 export function initializeFieldMatrixControls({ matrix, matrixSize, settings }) {
 	const index = (d) => normilizeIndex(d, matrixSize)

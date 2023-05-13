@@ -1,4 +1,4 @@
-import { DEFAULT_Y_POSITION } from "../../constants"
+import { DEFAULT_Y_POSITION } from "../../constants/simulation.settings"
 
 export function cloneMesh(mesh, { x, y = DEFAULT_Y_POSITION, z }) {
 	const newMesh = mesh.clone()

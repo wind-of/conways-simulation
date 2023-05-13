@@ -1,4 +1,4 @@
-import { DEFAULT_Y_POSITION } from "../constants"
+import { DEFAULT_Y_POSITION } from "../constants/simulation.settings"
 import { hintOpacityAnimation } from "../three/animation"
 
 import { initializeFieldFromTemplate } from "./template"

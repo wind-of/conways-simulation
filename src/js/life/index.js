@@ -7,15 +7,14 @@
 	
 	Пример: 5b - следующие 5 клеток - мертвые.
 */
+import { ALIVE_CELL_VALUE, DEAD_CELL_VALUE } from "../constants/simulation.settings"
 import {
-	ALIVE_CELL_VALUE,
 	CELL_TYPES,
 	DEAD_CELL_LETTER,
 	LIFE_STRING_NEWLINE_LETTER,
 	LIFE_STRING_END_LETTER,
-	ALIVE_CELL_LETTER,
-	DEAD_CELL_VALUE
-} from "../constants"
+	ALIVE_CELL_LETTER
+} from "../constants/parcer"
 
 export function lifestringParser({ string, height, width }) {
 	const matrix = Array.from({ length: height }, () => Array(width).fill(0))

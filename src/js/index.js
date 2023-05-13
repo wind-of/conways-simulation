@@ -4,11 +4,18 @@ import { initializeSimulation } from "./simulation/simulation"
 import { initializeGUI } from "./gui"
 import { encodeMatrixToLifeString } from "./life"
 import { reduceMatrix } from "./utils"
-import { SPACE_KEY } from "./constants"
+import { SPACE_KEY } from "./constants/general"
+import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_ITERATION_PER_TIME } from "./gui.constants"
 
 const canvas = document.getElementById("simulation")
 const { renderer, scene, camera } = projectInitialization({ canvas })
-const simulation = initializeSimulation({ camera })
+const simulation = initializeSimulation({
+	camera,
+	settings: {
+		iterationsPerSecond: DEFAULT_ITERATION_PER_SECOND,
+		iterationsPerTime: DEFAULT_ITERATION_PER_TIME
+	}
+})
 scene.add(simulation.root)
 
 initializeGUI({

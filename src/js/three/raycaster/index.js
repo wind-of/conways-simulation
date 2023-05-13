@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { NO_INTERSECTED_CELL } from "../../constants"
+import { NO_INTERSECTED_CELL } from "../../constants/simulation.settings"
 
 export function initializeRaycaster({ object, camera }) {
 	const mousePosition = new THREE.Vector2()

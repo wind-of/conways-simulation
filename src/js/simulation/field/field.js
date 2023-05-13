@@ -12,7 +12,7 @@ import {
 	INVERSION_STATE,
 	REVIVAL_STATE,
 	TERMINATION_STATE
-} from "../../constants"
+} from "../../constants/simulation.settings"
 import { aliveCellMesh } from "../../three/meshes/cell"
 import { initializeFieldMatrixControls } from "./field.matrix"
 
