@@ -7,7 +7,7 @@ import { reduceMatrix } from "./utils"
 import { SPACE_KEY } from "./constants/general"
 import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_ITERATION_PER_TIME } from "./gui.constants"
 
-const canvas = document.getElementById("simulation")
+const canvas = document.getElementById("simulation") as HTMLCanvasElement
 const { renderer, scene, camera } = projectInitialization({ canvas })
 const simulation = initializeSimulation({
 	camera,
@@ -49,11 +49,10 @@ window.addEventListener(
 )
 window.addEventListener("mouseup", () => simulation.handleMouseUp())
 
-function animate(time) {
+function animate(time: number) {
 	simulation.tick({ time })
 	checkRendererAspect(renderer, camera)
 	renderer.render(scene, camera)
 }
-
 renderer.setAnimationLoop(animate)
 window.addEventListener("resize", () => checkRendererAspect(renderer, camera))
