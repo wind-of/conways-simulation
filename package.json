@@ -22,6 +22,8 @@
     "three": "^0.133.0"
   },
   "devDependencies": {
+    "@types/node": "^18.11.9",
+    "@types/three": "^0.152.0",
     "cssnano": "^5.0.8",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "8.7.0",
