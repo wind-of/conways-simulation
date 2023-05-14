@@ -1,7 +1,8 @@
 import * as THREE from "three"
 import { horizontalPlaneMesh } from "./plane"
+import { PlaneMeshFunctionOutput } from "../../types"
 
-export function createAliveCellMesh() {
+export function createAliveCellMesh(): PlaneMeshFunctionOutput {
 	return horizontalPlaneMesh({
 		height: 1,
 		width: 1,

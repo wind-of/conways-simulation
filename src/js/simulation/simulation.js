@@ -3,7 +3,7 @@ import { SECOND_MS, MOUSE_EVENT_LEFT_BUTTON } from "../constants/general"
 import * as THREE from "three"
 
 import { initializeFieldControls } from "./field/field"
-import { normalizedRaycasterObjectPosition, positionToString } from "../three/coordinates"
+import { raycasterIntersectionPosition, positionToString } from "../three/coordinates"
 import { setupSimulationSettings } from "./settings"
 import { initializeRaycaster } from "../three/raycaster"
 import { rulesFunctionFactory } from "../life/rules"
@@ -98,7 +98,7 @@ export function initializeSimulation({
 			) {
 				return
 			}
-			const position = normalizedRaycasterObjectPosition({
+			const position = raycasterIntersectionPosition({
 				object: raycaster.getIntersectedCell(),
 				offsetVector: reverseCoordinateSigns(this.settings.offset)
 			})
@@ -117,7 +117,7 @@ export function initializeSimulation({
 				return
 			}
 
-			const position = normalizedRaycasterObjectPosition({
+			const position = raycasterIntersectionPosition({
 				object: intersectedCell,
 				offsetVector: reverseCoordinateSigns(this.settings.offset)
 			})

@@ -1,4 +1,4 @@
-export function resizeRendererToDisplaySize(renderer) {
+export function resizeRendererToDisplaySize(renderer: THREE.WebGLRenderer): boolean {
   const canvas = renderer.domElement;
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
@@ -9,7 +9,7 @@ export function resizeRendererToDisplaySize(renderer) {
   return needResize;
 }
 
-export function checkRendererAspect(renderer, camera) {
+export function checkRendererAspect(renderer: THREE.WebGLRenderer, camera: THREE.PerspectiveCamera): void {
   if (resizeRendererToDisplaySize(renderer)) {
     const canvas = renderer.domElement;
     camera.aspect = canvas.clientWidth / canvas.clientHeight;

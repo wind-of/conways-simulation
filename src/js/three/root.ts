@@ -1,8 +1,9 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
+import { ProjectModule } from "@/types"
 import { DEFAULT_FOV, DEFAULT_NEAR, DEFAULT_FAR } from "../constants/scene.defaults"
 
-export function projectInitialization({ canvas, cameraPosition = { x: 100, y: 100, z: 0 } }) {
+export const projectInitialization: ProjectModule = ({ canvas, cameraPosition = { x: 100, y: 100, z: 0 } }) => {
 	const renderer = new THREE.WebGLRenderer({ antialias: true, canvas })
 	renderer.setSize(window.innerWidth, window.innerHeight)
 	const scene = new THREE.Scene()

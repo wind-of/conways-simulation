@@ -2,7 +2,7 @@ import { DEFAULT_Y_POSITION } from "../constants/simulation.settings"
 import { hintOpacityAnimation } from "../three/animation"
 
 import { initializeFieldFromTemplate } from "./template"
-import { normalizedHintPosition } from "../three/coordinates"
+import { normalizeHintPosition } from "../three/coordinates"
 import { DEFAULT_TEMPLATE } from "../life/templates"
 
 export function initializeHint({ template = DEFAULT_TEMPLATE, globalRoot }) {
@@ -17,8 +17,8 @@ export function initializeHint({ template = DEFAULT_TEMPLATE, globalRoot }) {
 			this.root.visible = value
 		},
 		setHintPosition(position) {
-			const { x, z } = normalizedHintPosition({
-				...position,
+			const { x, z } = normalizeHintPosition({
+				position,
 				rowsCount: this.templateMatrix.length,
 				colsCount: this.templateMatrix[0].length
 			})

@@ -1,7 +1,7 @@
 import {
-	reverseNormilizeCoordinates,
+	reverseNormilizePosition,
 	positionToString,
-	normilizeCoordinates
+	normilizePosition
 } from "../../three/coordinates"
 import { fullyTerminateMesh, cloneMesh } from "../../three/meshes"
 
@@ -43,7 +43,7 @@ export function initializeFieldControls({
 			for (let x = 0; x < matrixSize; x++)
 				for (let z = 0; z < matrixSize; z++)
 					this.terminateCell({
-						position: reverseNormilizeCoordinates({ position: { x, z }, max: matrixSize })
+						position: reverseNormilizePosition({ position: { x, z }, max: matrixSize })
 					})
 			this.hint.setHintVisibility(false)
 		},
@@ -66,7 +66,7 @@ export function initializeFieldControls({
 		},
 		applyHintTemplateToField({ center }) {
 			const { templateMatrix } = this.hint
-			const normalizedCenter = normilizeCoordinates({ position: center, max: matrixSize })
+			const normalizedCenter = normilizePosition({ position: center, max: matrixSize })
 			const rowsCount = templateMatrix.length
 			const columnsCount = templateMatrix[0].length
 			const startX = normalizedCenter.x - Math.floor(rowsCount / 2)
@@ -78,7 +78,7 @@ export function initializeFieldControls({
 
 			for (let x = 0; x < rowsCount; x++)
 				for (let z = 0; z < columnsCount; z++) {
-					const fieldPosition = reverseNormilizeCoordinates({
+					const fieldPosition = reverseNormilizePosition({
 						position: { x: x + startX, z: z + startZ },
 						max: matrixSize
 					})
@@ -111,14 +111,14 @@ export function initializeFieldControls({
 			changes = []
 		},
 		iterate(position_) {
-			const position = reverseNormilizeCoordinates({ position: position_, max: matrixSize })
+			const position = reverseNormilizePosition({ position: position_, max: matrixSize })
 			const value = willBeAlive(position) ? ALIVE_CELL_VALUE : DEAD_CELL_VALUE
 			changes.push({ position, value })
 		},
 		iteratePositions({ positions, isReverseNormalized = false }) {
 			for (let i = 0; i < positions.length; i++) {
 				const position = isReverseNormalized
-					? normilizeCoordinates({ position: positions[i], max: matrixSize })
+					? normilizePosition({ position: positions[i], max: matrixSize })
 					: positions[i]
 				this.iterate(position)
 			}
@@ -145,7 +145,7 @@ export function initializeFieldControls({
 		display() {
 			for (let x = 0; x < matrixSize; x++)
 				for (let z = 0; z < matrixSize; z++) {
-					const position = reverseNormilizeCoordinates({ position: { x, z }, max: matrixSize })
+					const position = reverseNormilizePosition({ position: { x, z }, max: matrixSize })
 					matrix[x][z] === ALIVE_CELL_VALUE
 						? this.reviveCell({ position })
 						: this.terminateCell({ position })

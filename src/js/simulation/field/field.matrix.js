@@ -2,8 +2,8 @@ import {
 	normilizeIndex,
 	mirroredIndex,
 	positionToString,
-	mirroredCoordinates,
-	normilizeCoordinates
+	mirrorePosition,
+	normilizePosition
 } from "../../three/coordinates"
 
 import {
@@ -13,7 +13,7 @@ import {
 } from "../../constants/simulation.settings"
 
 export function initializeFieldMatrixControls({ matrix, matrixSize, settings }) {
-	const index = (d) => normilizeIndex(d, matrixSize)
+	const index = (d) => normilizeIndex({ d, max: matrixSize })
 	const set = (x, z, v) => (matrix[index(x)][index(z)] = v)
 	const get = (x, z) => {
 		x = mirroredIndex({ d: index(x), max: matrixSize })
@@ -71,13 +71,13 @@ export function initializeFieldMatrixControls({ matrix, matrixSize, settings }) 
 			if (!this.potentiallyActiveCells) {
 				this.potentiallyActiveCells = []
 			}
-			const normalizedPosition = normilizeCoordinates({ position, max: matrixSize })
-			const mirroredPosition = mirroredCoordinates({
+			const normalizedPosition = normilizePosition({ position, max: matrixSize })
+			const mirroredPosition = mirrorePosition({
 				position: normalizedPosition,
 				max: matrixSize
 			})
 			const mirroredNeighbours = getNeighboursPositions(normalizedPosition).map((position) =>
-				mirroredCoordinates({ position, max: matrixSize })
+				mirrorePosition({ position, max: matrixSize })
 			)
 
 			const newPositions = [mirroredPosition, ...mirroredNeighbours]
