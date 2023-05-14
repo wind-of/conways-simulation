@@ -4,6 +4,9 @@
     "es2021": true
   },
   "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
   "extends": [
     "eslint:recommended",
     "plugin:import/recommended",
@@ -27,10 +30,12 @@
     "import/named": 2,
     "import/namespace": 2,
     "import/default": 2,
-    "import/export": 2
+    "import/export": 2,
+    "@typescript-eslint/no-empty-function": "off"
   },
   "settings": {
     "import/resolver": {
+      "typescript": {},
       "node": {
         "extensions": [
           ".js",
