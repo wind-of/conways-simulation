@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import { templateGridPlaneMesh } from "../three/meshes/plane"
+import { templateGridPlaneMesh } from "../project/meshes/plane"
 import { lifestringParser } from "../life"
 import { initializeFieldControls } from "./field/field"
 

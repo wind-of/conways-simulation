@@ -1,5 +1,5 @@
-import { gameGridPlaneMesh } from "../three/meshes/plane"
-import { createGridMesh } from "../three/grid"
+import { gameGridPlaneMesh } from "../project/meshes/plane"
+import { createGridMesh } from "../project/grid"
 
 export function initializeSimulationRootMesh({ root, matrixSize: size }) {
 	const rootMesh = gameGridPlaneMesh({ size })

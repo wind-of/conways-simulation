@@ -2,8 +2,8 @@ import {
 	reverseNormilizePosition,
 	positionToString,
 	normilizePosition
-} from "../../three/coordinates"
-import { fullyTerminateMesh, cloneMesh } from "../../three/meshes"
+} from "../../project/coordinates"
+import { fullyTerminateMesh, cloneMesh } from "../../project/meshes"
 
 import { doesHintCrossBorders } from "../../utils"
 import {
@@ -13,7 +13,7 @@ import {
 	REVIVAL_STATE,
 	TERMINATION_STATE
 } from "../../constants/simulation.settings"
-import { aliveCellMesh } from "../../three/meshes/cell"
+import { aliveCellMesh } from "../../project/meshes/cell"
 import { initializeFieldMatrixControls } from "./field.matrix"
 
 export function initializeFieldControls({

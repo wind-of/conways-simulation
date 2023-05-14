@@ -4,7 +4,7 @@ import {
 	positionToString,
 	mirrorePosition,
 	normilizePosition
-} from "../../three/coordinates"
+} from "../../project/coordinates"
 
 import {
 	ALIVE_CELL_VALUE,

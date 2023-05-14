@@ -1,8 +1,8 @@
 import { DEFAULT_Y_POSITION } from "../constants/simulation.settings"
-import { hintOpacityAnimation } from "../three/animation"
+import { hintOpacityAnimation } from "../project/animation"
 
 import { initializeFieldFromTemplate } from "./template"
-import { normalizeHintPosition } from "../three/coordinates"
+import { normalizeHintPosition } from "../project/coordinates"
 import { DEFAULT_TEMPLATE } from "../life/templates"
 
 export function initializeHint({ template = DEFAULT_TEMPLATE, globalRoot }) {
