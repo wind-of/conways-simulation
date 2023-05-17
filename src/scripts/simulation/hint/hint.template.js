@@ -1,7 +1,7 @@
 import * as THREE from "three"
-import { templateGridPlaneMesh } from "../project/meshes/plane"
-import { lifestringParser } from "../life"
-import { initializeFieldControls } from "./field/field"
+import { templateGridPlaneMesh } from "../../project/meshes/plane"
+import { lifestringParser } from "../../meta/parcer"
+import { initializeFieldControls } from "../field"
 
 export function initializeFieldFromTemplate({ template }) {
 	const templateHintRoot = new THREE.Object3D()

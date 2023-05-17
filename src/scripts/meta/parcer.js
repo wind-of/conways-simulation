@@ -14,7 +14,7 @@ import {
 	LIFE_STRING_NEWLINE_LETTER,
 	LIFE_STRING_END_LETTER,
 	ALIVE_CELL_LETTER
-} from "../constants/parcer"
+} from "../constants/meta"
 
 export function lifestringParser({ string, height, width }) {
 	const matrix = Array.from({ length: height }, () => Array(width).fill(0))

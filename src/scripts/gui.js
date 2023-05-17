@@ -8,8 +8,8 @@ import {
 	DEFAULT_ITERATION_PER_TIME
 } from "./constants/simulation.settings"
 import { EMPTY_FUNCTION } from "./constants/general"
-import { templates } from "./life/templates"
-import { rules } from "./life/rules"
+import { templates } from "./meta/templates"
+import { rules } from "./meta/rules"
 
 export function initializeGUI({
 	handleFieldClear = EMPTY_FUNCTION,

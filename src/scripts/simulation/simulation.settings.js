@@ -1,6 +1,6 @@
 import * as THREE from "three"
 
-import { defaultRulesFunction } from "../life/rules"
+import { defaultRulesFunction } from "../meta/rules"
 import {
 	DEFAULT_ITERATION_PER_SECOND,
 	DEFAULT_ITERATION_PER_TIME,
