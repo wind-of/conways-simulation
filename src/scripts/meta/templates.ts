@@ -1,13 +1,15 @@
-export const SIMPLE_GLIDER = "SIMPLE_GLIDER"
-export const SIMPLE_INFINITE_GROWTH = "SIMPLE_INFINITE_GROWTH"
-export const SPIRAL_V1 = "SPIRAL_V1"
-export const SPIRAL_V2 = "SPIRAL_V2"
-export const DOT = "DOT"
-export const BOX_2X2 = "BOX_2X2"
-export const CRAB = "CRAB"
-export const JELLYFISH = "JELLYFISH"
-export const CLOCK = "CLOCK"
-export const CRAB_V2 = "CRAB_V2"
+import { HintTemplate } from "@/types/meta"
+
+export const SIMPLE_GLIDER = "SIMPLE_GLIDER" as const
+export const SIMPLE_INFINITE_GROWTH = "SIMPLE_INFINITE_GROWTH" as const
+export const SPIRAL_V1 = "SPIRAL_V1" as const
+export const SPIRAL_V2 = "SPIRAL_V2" as const
+export const DOT = "DOT" as const
+export const BOX_2X2 = "BOX_2X2" as const
+export const CRAB = "CRAB" as const
+export const JELLYFISH = "JELLYFISH" as const
+export const CLOCK = "CLOCK" as const
+export const CRAB_V2 = "CRAB_V2" as const
 
 // width - x, height - y
 export const templates = {
@@ -83,4 +85,4 @@ export const templates = {
 	}
 }
 
-export const DEFAULT_TEMPLATE = templates[DOT]
+export const DEFAULT_TEMPLATE: HintTemplate = templates[DOT]

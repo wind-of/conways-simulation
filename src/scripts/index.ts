@@ -2,7 +2,7 @@ import { projectInitialization } from "./project/root"
 import { checkRendererAspect } from "./project/responsive"
 import { initializeSimulation } from "./simulation"
 import { initializeGUI } from "./gui"
-import { encodeMatrixToLifeString } from "./meta/parcer"
+import { encodeMatrixToTemplateString } from "./meta/parcer"
 import { reduceMatrix } from "./utils"
 import { SPACE_KEY } from "./constants/general"
 import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_ITERATION_PER_TIME } from "./gui.constants"
@@ -24,7 +24,7 @@ initializeGUI({
 	handleFieldClear: simulation.clearField.bind(simulation),
 	handleFieldCopy: ({ shouldReduce }) => {
 		const matrix = shouldReduce ? reduceMatrix(simulation.field.matrix) : simulation.field.matrix
-		const string = encodeMatrixToLifeString(matrix)
+		const string = encodeMatrixToTemplateString(matrix)
 		navigator.clipboard.writeText(string)
 	},
 	handleRulesChange: simulation.updateRulesFunction.bind(simulation),

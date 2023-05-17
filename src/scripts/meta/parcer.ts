@@ -15,15 +15,16 @@ import {
 	LIFE_STRING_END_LETTER,
 	ALIVE_CELL_LETTER
 } from "../constants/meta"
+import { TemplateStringParcerFunction, EncodeMatrixToTemplateStringFunction } from "@/types/meta"
 
-export function lifestringParser({ string, height, width }) {
+export const templateStringParcerParser: TemplateStringParcerFunction = ({ string, height, width }) => {
 	const matrix = Array.from({ length: height }, () => Array(width).fill(0))
 	const makeStep = ({ x, y, v }) => {
 		matrix[x][y] = v
 		return (y + 1) % width
 	}
 	for (let i = 0, x = 0, y = 0; i < string.length; i++) {
-		let char = string[i]
+		let char: string | number = string[i]
 		const v = CELL_TYPES[char]
 		if (char === LIFE_STRING_END_LETTER) {
 			break
@@ -42,7 +43,7 @@ export function lifestringParser({ string, height, width }) {
 			}
 			const state = string[i + 1]
 			const v = CELL_TYPES[state]
-			for (let k = 0; k < char; k++) {
+			for (let k = 0; k < +char; k++) {
 				y = makeStep({ x, y, v })
 			}
 			i++
@@ -51,12 +52,12 @@ export function lifestringParser({ string, height, width }) {
 	return matrix
 }
 
-export function encodeMatrixToLifeString(matrix) {
+export const encodeMatrixToTemplateString: EncodeMatrixToTemplateStringFunction = (matrix) => {
 	let result = ""
 	if (matrix.length === 0) {
 		return result
 	}
-	const getPrefix = (v) => (v > 1 ? v : "")
+	const getPrefix = (v: number) => (v > 1 ? v : "")
 	const rows = matrix.length
 	const cols = matrix[0].length
 	for (let x = 0, o = 0, b = 0; x < rows; x++, o = 0, b = 0) {

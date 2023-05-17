@@ -1,3 +1,5 @@
+import { Rule, NamedRule, RulesFunction } from "@/types/meta"
+
 export const RULE_S23B3 = "S23/B3"
 export const RULE_S245B368 = "S245/B368"
 export const RULE_S23B38 = "S23/B38"
@@ -20,12 +22,14 @@ export const rules = {
 	}
 }
 
-export function rulesFunctionFactory(rule) {
+export function rulesFunctionFactory(rule: Rule | NamedRule): RulesFunction {
 	const { stay, birth } = rules[rule.name] || rule
 	return ({ isAlive, neighboursCount }) =>
-		isAlive ? stay.includes(neighboursCount) : birth.includes(neighboursCount)
+		isAlive 
+			? stay.includes(neighboursCount) 
+			: birth.includes(neighboursCount)
 }
 
-export function defaultRulesFunction() {
+export function defaultRulesFunction(): RulesFunction {
 	return rulesFunctionFactory({ name: RULE_S23B3 })
 }
