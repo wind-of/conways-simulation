@@ -6,14 +6,14 @@ export type GridMesh = {
 }
 export type GameGridPlaneMesh = {
 	size: number
-	width: number
-	height: number
+	width?: number
+	height?: number
 }
 
 export type TemplateGridPlaneMeshParameters = {
 	height: number
 	width: number
-	color: Color
+	color?: Color
 }
 export type TemplateGridPlaneMesh = (params: TemplateGridPlaneMeshParameters) => PlaneMeshFunctionOutput
 

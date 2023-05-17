@@ -7,9 +7,10 @@ import {
 	DEFAULT_MATRIX_SIZE,
 	DEFAULT_Y_POSITION
 } from "../constants/simulation.settings"
-import { zeroMatrix } from "../utils"
+import { zeroMatrix } from "../utils.ts"
+import { SetupSimulationSettingsFunction } from "@/types"
 
-export const setupSimulationSettings = (options) => ({
+export const setupSimulationSettings: SetupSimulationSettingsFunction = (options = {}) => ({
 	rulesFunction: defaultRulesFunction(),
 	iterationsPerSecond: DEFAULT_ITERATION_PER_SECOND,
 	iterationsPerTime: DEFAULT_ITERATION_PER_TIME,

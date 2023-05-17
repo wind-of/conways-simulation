@@ -11,11 +11,12 @@ import {
 	DEAD_CELL_VALUE,
 	NO_CELL_VALUE
 } from "../../constants/simulation.settings"
+import { CellValue, FieldMatrixControlsInitializer } from "@/types"
 
-export function initializeFieldMatrixControls({ matrix, matrixSize, settings }) {
-	const index = (d) => normilizeIndex({ d, max: matrixSize })
-	const set = (x, z, v) => (matrix[index(x)][index(z)] = v)
-	const get = (x, z) => {
+export const initializeFieldMatrixControls: FieldMatrixControlsInitializer = ({ matrix, matrixSize, settings }) => {
+	const index = (d: number) => normilizeIndex({ d, max: matrixSize })
+	const set = (x: number, z: number, v: CellValue) => (matrix[index(x)][index(z)] = v)
+	const get = (x: number, z: number) => {
 		x = mirroredIndex({ d: index(x), max: matrixSize })
 		z = mirroredIndex({ d: index(z), max: matrixSize })
 

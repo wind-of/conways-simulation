@@ -5,7 +5,7 @@ import {
 } from "../../project/coordinates"
 import { fullyTerminateMesh, cloneMesh } from "../../project/meshes"
 
-import { doesHintCrossBorders } from "../../utils"
+import { doesHintCrossBorders } from "../../utils.ts"
 import {
 	ALIVE_CELL_VALUE,
 	DEAD_CELL_VALUE,
@@ -15,14 +15,16 @@ import {
 } from "../../constants/simulation.settings"
 import { aliveCellMesh } from "../../project/meshes/cell"
 import { initializeFieldMatrixControls } from "./field.matrix"
+import { FieldInitializer } from "@/types"
+import { setupSimulationSettings } from "../simulation.settings"
 
-export function initializeFieldControls({
+export const initializeFieldControls: FieldInitializer = ({
 	matrix,
 	matrixSize = matrix.length,
 	root,
 	hint,
-	settings = {}
-}) {
+	settings = setupSimulationSettings({})
+}) => {
 	if (hint) {
 		root.add(hint.root)
 	}

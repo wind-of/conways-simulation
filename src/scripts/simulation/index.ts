@@ -10,12 +10,13 @@ import { rulesFunctionFactory } from "../meta/rules"
 import { initializeHint } from "./hint"
 import { initializeSimulationRootMesh } from "./simulation.mesh"
 import { reverseCoordinateSigns } from "../utils"
+import { SimulationInitializer } from "@/types"
 
-export function initializeSimulation({
+export const initializeSimulation: SimulationInitializer = ({
 	camera,
 	root = new THREE.Object3D(),
 	settings: settings_ = {}
-}) {
+}) => {
 	const settings = setupSimulationSettings(settings_)
 	const { matrix, matrixSize, offset } = settings
 	const field = initializeFieldControls({
@@ -29,14 +30,13 @@ export function initializeSimulation({
 	const raycaster = initializeRaycaster({ object: rootMesh, camera })
 	field.display()
 
+	let isHoldingMouse = false
 	let previosPosition = null
 	return {
 		root,
 		field,
 		settings,
 		raycaster,
-
-		isHoldingMouse: false,
 
 		isIterating: false,
 		iteration: 0,
@@ -103,10 +103,10 @@ export function initializeSimulation({
 				offsetVector: reverseCoordinateSigns(this.settings.offset)
 			})
 			this.field.applyHintTemplateToField({ center: position })
-			this.isHoldingMouse = true
+			isHoldingMouse = true
 		},
 		handleMouseUp() {
-			this.isHoldingMouse = false
+			isHoldingMouse = false
 			this.field.hint.setHintVisibility(!this.isIterating && this.raycaster.hasIntersectedCell())
 		},
 		handleMouseMove({ clientX, clientY }) {
@@ -129,7 +129,7 @@ export function initializeSimulation({
 			this.field.hint.setHintsDefaultState()
 			this.field.hint.setHintPosition(position)
 
-			if (this.isHoldingMouse) {
+			if (isHoldingMouse) {
 				this.field.applyHintTemplateToField({ center: position })
 			}
 		}

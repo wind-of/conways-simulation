@@ -1,8 +1,8 @@
 import * as THREE from "three"
 import { NO_INTERSECTED_CELL } from "../../constants/simulation.settings"
-import { RaycasterModule } from "@/types"
+import { RaycasterModuleInitializer } from "@/types"
 
-export const initializeRaycaster: RaycasterModule = ({ object, camera }) => {
+export const initializeRaycaster: RaycasterModuleInitializer = ({ object, camera }) => {
 	const mousePosition = new THREE.Vector2()
 	const raycaster = new THREE.Raycaster()
 	return {

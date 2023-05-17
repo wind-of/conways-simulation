@@ -4,8 +4,9 @@ import { hintOpacityAnimation } from "../../project/animation"
 import { initializeFieldFromTemplate } from "./hint.template"
 import { normalizeHintPosition } from "../../project/coordinates"
 import { DEFAULT_TEMPLATE } from "../../meta/templates"
+import { HintInitializer } from "@/types"
 
-export function initializeHint({ template = DEFAULT_TEMPLATE, globalRoot }) {
+export const initializeHint: HintInitializer = ({ template = DEFAULT_TEMPLATE, globalRoot }) => {
 	const { templateHintRoot, templateMatrix } = initializeFieldFromTemplate({ template })
 
 	return {

@@ -8,7 +8,7 @@ export type RaycasterModuleParams = {
 export type RaycasterModuleOutput = {
 	intersectedCell: typeof NO_INTERSECTED_CELL | THREE.Intersection
 	hasIntersectedCell: () => boolean
-	getIntersectedCell: () => THREE.Mesh
+	getIntersectedCell: () => THREE.Intersection
 	setMousePosition: (params: MousePosition) => void
 }
-export type RaycasterModule = (params: RaycasterModuleParams) => RaycasterModuleOutput
+export type RaycasterModuleInitializer = (params: RaycasterModuleParams) => RaycasterModuleOutput

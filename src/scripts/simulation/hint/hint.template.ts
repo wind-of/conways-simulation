@@ -1,16 +1,17 @@
 import * as THREE from "three"
 import { templateGridPlaneMesh } from "../../project/meshes/plane"
-import { templateStringParcerParser } from "../../meta/parcer"
-import { initializeFieldControls } from "../field"
+import { templateStringParcerParser } from "../../meta/parser"
+import { initializeFieldControls } from "../field/index.ts"
+import { TemplateFieldInitializer } from "@/types/simulation"
 
-export function initializeFieldFromTemplate({ template }) {
+export const initializeFieldFromTemplate: TemplateFieldInitializer = ({ template }) => {
 	const templateHintRoot = new THREE.Object3D()
 	const templateGrid = templateGridPlaneMesh({ height: template.height, width: template.width })
 	const templateMatrix = templateStringParcerParser(template)
 	const templateHintField = initializeFieldControls({
 		root: templateHintRoot,
 		matrix: templateMatrix,
-		matrixSize: template.rows
+		matrixSize: template.width
 	})
 	templateHintRoot.add(templateGrid)
 	templateHintField.display()
