@@ -8,7 +8,7 @@ export function cloneMesh(mesh: THREE.Mesh, { x, y = DEFAULT_Y_POSITION, z }: Po
 	return newMesh
 }
 
-export function fullyTerminateMesh(scene: THREE.Scene | THREE.Mesh, mesh: THREE.Mesh): void {
+export function fullyTerminateMesh(scene: THREE.Scene | THREE.Mesh | THREE.Object3D, mesh: THREE.Mesh): void {
 	scene.remove(mesh)
 	mesh.geometry.dispose()
 	;(mesh.material as Material).dispose()

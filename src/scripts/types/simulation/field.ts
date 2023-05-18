@@ -2,7 +2,7 @@ import { CellValue, FieldMatrix, Hint, NormalizedPosition, Position, ReverseNorm
 
 export type FieldSettings = SimulationSettings
 export type Field = {
-	root: THREE.Mesh
+	root: RootMesh
 	matrix: FieldMatrix
 	objects: object
 	controls: FieldMatrixControls
@@ -30,8 +30,8 @@ export type FieldInitializerParams = {
 	matrix: FieldMatrix
 	matrixSize?: number
 	root: RootMesh
-	hint: Hint
-	settings: FieldSettings
+	hint?: Hint
+	settings?: FieldSettings
 }
 export type FieldInitializer = (params: FieldInitializerParams) => Field
 

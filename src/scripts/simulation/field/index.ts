@@ -5,7 +5,7 @@ import {
 } from "../../project/coordinates"
 import { fullyTerminateMesh, cloneMesh } from "../../project/meshes"
 
-import { doesHintCrossBorders } from "../../utils.ts"
+import { doesHintCrossBorders } from "../../utils"
 import {
 	ALIVE_CELL_VALUE,
 	DEAD_CELL_VALUE,

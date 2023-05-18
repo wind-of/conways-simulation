@@ -1,7 +1,7 @@
 import * as THREE from "three"
 import { templateGridPlaneMesh } from "../../project/meshes/plane"
 import { templateStringParcerParser } from "../../meta/parser"
-import { initializeFieldControls } from "../field/index.ts"
+import { initializeFieldControls } from "../field"
 import { TemplateFieldInitializer } from "@/types/simulation"
 
 export const initializeFieldFromTemplate: TemplateFieldInitializer = ({ template }) => {
