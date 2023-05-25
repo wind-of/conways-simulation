@@ -4,7 +4,7 @@ import { Position } from "@/types"
 
 export function cloneMesh(mesh: THREE.Mesh, { x, y = DEFAULT_Y_POSITION, z }: Position): THREE.Mesh {
 	const newMesh = mesh.clone()
-	newMesh.position.set(x, y, z)
+	newMesh.position.set(x, y, z) 
 	return newMesh
 }
 
