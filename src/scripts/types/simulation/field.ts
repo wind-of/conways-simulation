@@ -18,10 +18,6 @@ export type Field = {
 	applyHintTemplateToField(params: { center: ReverseNormalizedPosition }): void
 	applyChanges(): void
 	iterate(position: NormalizedPosition): void
-	iteratePositions(params: {
-		positions: Array<ReverseNormalizedPosition | NormalizedPosition>
-		isReverseNormalized: boolean
-	}): void
 	reviveCell(params: { position: ReverseNormalizedPosition }): void
 	terminateCell(params: { position: ReverseNormalizedPosition }): void
 	display(): void

@@ -15,7 +15,7 @@ import {
 } from "../../constants/simulation.settings"
 import { aliveCellMesh } from "../../project/meshes/cell"
 import { initializeFieldMatrixControls } from "./field.matrix"
-import { FieldInitializer } from "@/types"
+import { FieldInitializer, NormalizedPosition } from "@/types"
 import { setupSimulationSettings } from "../simulation.settings"
 
 export const initializeFieldControls: FieldInitializer = ({
@@ -29,8 +29,22 @@ export const initializeFieldControls: FieldInitializer = ({
 		root.add(hint.root)
 	}
 	const fieldControls = initializeFieldMatrixControls({ matrix, matrixSize, settings })
-	const { kill, revive, isAlive, willBeAlive, set } = fieldControls
+	const { kill, revive, isAlive, willBeAlive, set ,get } = fieldControls
 	let changes = []
+
+	function iterate(position_: NormalizedPosition) { 
+		const position = reverseNormilizePosition({ position: position_, max: matrixSize })
+		const value = willBeAlive(position) ? ALIVE_CELL_VALUE : DEAD_CELL_VALUE
+		if(value === get(position.x, position.z)) {
+			return
+		}
+		changes.push({ position, value })
+	}
+	for(let x = 0; x < matrix.length; x++)
+		for(let z = 0; z < matrix[0].length; z++)
+			iterate({ x, z })
+
+	
 	return {
 		root,
 		matrix,
@@ -42,6 +56,8 @@ export const initializeFieldControls: FieldInitializer = ({
 			this.state = state
 		},
 		clear() {
+			fieldControls.clearPotentiallyActivePositions()
+			changes = []
 			for (let x = 0; x < matrixSize; x++)
 				for (let z = 0; z < matrixSize; z++)
 					this.terminateCell({
@@ -112,19 +128,7 @@ export const initializeFieldControls: FieldInitializer = ({
 			})
 			changes = []
 		},
-		iterate(position_) {
-			const position = reverseNormilizePosition({ position: position_, max: matrixSize })
-			const value = willBeAlive(position) ? ALIVE_CELL_VALUE : DEAD_CELL_VALUE
-			changes.push({ position, value })
-		},
-		iteratePositions({ positions, isReverseNormalized = false }) {
-			for (let i = 0; i < positions.length; i++) {
-				const position = isReverseNormalized
-					? normilizePosition({ position: positions[i], max: matrixSize })
-					: positions[i]
-				this.iterate(position)
-			}
-		},
+		iterate,
 		reviveCell({ position }) {
 			const mesh = this.getObjectAtPosition({ position })
 			if (mesh) {
