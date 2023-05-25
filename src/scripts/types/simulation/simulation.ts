@@ -59,7 +59,7 @@ export type Simulation = {
 
 export type SimulationInitializer = (params: {
 	camera: THREE.PerspectiveCamera
-	root: RootMesh
+	root?: RootMesh
 	settings: SetupSimulationSettingsParamsOptional
 }) => Simulation
 

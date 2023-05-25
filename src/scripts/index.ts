@@ -3,7 +3,7 @@ import { checkRendererAspect } from "./project/responsive"
 import { initializeSimulation } from "./simulation"
 import { initializeGUI } from "./gui"
 import { encodeMatrixToTemplateString } from "./meta/parser"
-import { reduceMatrix } from "./utils.ts"
+import { reduceMatrix } from "./utils"
 import { SPACE_KEY } from "./constants/general"
 import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_ITERATION_PER_TIME } from "./gui.constants"
 
