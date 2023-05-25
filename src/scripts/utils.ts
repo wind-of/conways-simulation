@@ -4,7 +4,7 @@ import { FieldMatrix, Position } from "./types"
 export const zeroArray = (length: number) => Array.from({ length }, () => 0)
 export const zeroMatrix = (length: number) => Array.from({ length }, () => zeroArray(length))
 
-export const randomArray = (length: number) => Array.from({ length }, () => Math.round(Math.random()))
+export const randomArray = (length: number) => Array.from({ length }, () => Math.round(Math.random()) as (0 | 1))
 export const randomMatrix = (length: number) => Array.from({ length }, () => randomArray(length))
 
 export function reduceMatrix(matrix: FieldMatrix): FieldMatrix {
