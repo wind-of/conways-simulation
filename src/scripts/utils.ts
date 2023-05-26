@@ -1,7 +1,7 @@
 import THREE = require("three")
 import { FieldMatrix, Position } from "./types"
 
-export const zeroArray = (length: number) => Array.from({ length }, () => 0)
+export const zeroArray = (length: number) => Array.from({ length }, (): (0 | 1) => 0)
 export const zeroMatrix = (length: number) => Array.from({ length }, () => zeroArray(length))
 
 export const randomArray = (length: number) => Array.from({ length }, () => Math.round(Math.random()) as (0 | 1))
