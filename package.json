@@ -2,6 +2,7 @@
   "name": "conways-simulation",
   "version": "1.0.0",
   "description": "",
+  "packageManager": "pnpm@8.6.0",
   "scripts": {
     "start": "parcel src/index.html",
     "build": "parcel build src/index.html",
