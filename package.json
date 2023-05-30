@@ -2,9 +2,9 @@
   "name": "conways-simulation",
   "version": "1.0.0",
   "description": "",
-  "main": "scripts.js",
   "scripts": {
     "start": "parcel src/index.html",
+    "build": "parcel build src/index.html",
     "prepare": "husky install"
   },
   "keywords": [],
