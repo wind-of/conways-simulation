@@ -5,7 +5,7 @@ export const NO_INTERSECTED_CELL = null
 
 export const DEFAULT_ITERATION_PER_SECOND = 100
 export const DEFAULT_ITERATION_PER_TIME = 1
-export const DEFAULT_MATRIX_SIZE = 50
+export const DEFAULT_MATRIX_SIZE = 80
 export const DEFAULT_Y_POSITION = 0
 
 export const INVERSION_STATE = "INVERSION_STATE" as const
