@@ -17,7 +17,7 @@ import {
 } from "../constants/meta"
 import { TemplateStringParcerFunction, EncodeMatrixToTemplateStringFunction } from "@/types"
 
-export const templateStringParcerParser: TemplateStringParcerFunction = ({ string, height, width }) => {
+export const templateStringParser: TemplateStringParcerFunction = ({ string, height, width }) => {
 	const matrix = Array.from({ length: height }, () => Array(width).fill(0))
 	const makeStep = ({ x, y, v }) => {
 		matrix[x][y] = v

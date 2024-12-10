@@ -31,7 +31,7 @@ export const initializeSimulation: SimulationInitializer = ({
 	field.display()
 
 	let isHoldingMouse = false
-	let previosPosition = null
+	let previousPosition = null
 	return {
 		root,
 		field,
@@ -122,10 +122,10 @@ export const initializeSimulation: SimulationInitializer = ({
 				offsetVector: reverseCoordinateSigns(this.settings.offset)
 			})
 			const stringifiedPosition = positionToString(position)
-			if (stringifiedPosition === previosPosition) {
+			if (stringifiedPosition === previousPosition) {
 				return
 			}
-			previosPosition = stringifiedPosition
+			previousPosition = stringifiedPosition
 			this.field.hint.setHintsDefaultState()
 			this.field.hint.setHintPosition(position)
 
