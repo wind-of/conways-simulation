@@ -3,7 +3,7 @@ import { checkRendererAspect } from "./project/responsive"
 import { initializeSimulation } from "./simulation"
 import { initializeGUI } from "./gui"
 import { encodeMatrixToTemplateString } from "./meta/parser"
-import { reduceMatrix } from "./utils"
+import { matrixToRLEFormat, reduceMatrix } from "./utils"
 import { SPACE_KEY } from "./constants/general"
 import { DEFAULT_ITERATION_PER_SECOND, DEFAULT_ITERATION_PER_TIME } from "./gui.constants"
 
@@ -25,7 +25,8 @@ initializeGUI({
 	handleFieldCopy: ({ shouldReduce }) => {
 		const matrix = shouldReduce ? reduceMatrix(simulation.field.matrix) : simulation.field.matrix
 		const string = encodeMatrixToTemplateString(matrix)
-		navigator.clipboard.writeText(string)
+		const RLEFormat = matrixToRLEFormat({ string, width: matrix.length, height: matrix[0].length })
+		navigator.clipboard.writeText(RLEFormat)
 	},
 	handleRulesChange: simulation.updateRulesFunction.bind(simulation),
 	handleIterationsPerSecondChange: simulation.settings.setIterationsPerSecond.bind(

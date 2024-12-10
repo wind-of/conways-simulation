@@ -48,3 +48,12 @@ export function doesHintCrossBorders({ matrixSize, rowsCount, columnsCount, star
 export function reverseCoordinateSigns({ x, y, z }: Position): THREE.Vector3 {
 	return new THREE.Vector3(-x, -y, -z)
 }
+
+export function matrixToRLEFormat({ string, width, height }: { string: string, width: number, height: number }): string {
+	return (
+`#N MyField ${(Math.random() * (10**6)) | 0}
+#O Unknown Creator ${new Date().toISOString()}
+x = ${width}, y = ${height}
+${string}`
+	)
+}
