@@ -15,9 +15,9 @@ import {
 	LIFE_STRING_END_LETTER,
 	ALIVE_CELL_LETTER
 } from "../constants/meta"
-import { TemplateStringParcerFunction, EncodeMatrixToTemplateStringFunction } from "@/types"
+import { TemplateStringParserFunction, EncodeMatrixToTemplateStringFunction } from "@/types"
 
-export const templateStringParser: TemplateStringParcerFunction = ({ string, height, width }) => {
+export const templateStringParser: TemplateStringParserFunction = ({ string, height, width }) => {
 	const matrix = Array.from({ length: height }, () => Array(width).fill(0))
 	const makeStep = ({ x, y, v }) => {
 		matrix[x][y] = v
